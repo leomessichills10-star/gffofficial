@@ -668,9 +668,49 @@ const STORAGE_KEY_MATCHES = "gff:matches";
 const STORAGE_KEY_POSITIONS = "gff:positions";
 const STORAGE_KEY_LOGIN_HISTORY = "gff:loginHistory";
 
+/* ---------- Storage layer ----------
+   window.storage only exists when this page runs inside a Claude.ai
+   artifact frame. When the file is downloaded and opened on its own
+   (double-clicked, hosted elsewhere, etc.) that API is undefined, so
+   every save was throwing and showing "storage error". This wrapper
+   uses window.storage when it's really there, and otherwise falls
+   back to the browser's own localStorage so saving still works. */
+const LOCAL_PREFIX = "gff_local:";
+const hasClaudeStorage = (typeof window !== 'undefined') &&
+  window.storage && typeof window.storage.get === 'function' && typeof window.storage.set === 'function';
+
+async function storageGet(key){
+  if(hasClaudeStorage){
+    try{
+      const res = await window.storage.get(key, true);
+      if(res) return res;
+    }catch(e){ /* fall through to local */ }
+  }
+  try{
+    const raw = window.localStorage.getItem(LOCAL_PREFIX+key);
+    return raw!==null ? { key, value: raw, shared:true } : null;
+  }catch(e){
+    return null;
+  }
+}
+async function storageSet(key, value){
+  if(hasClaudeStorage){
+    try{
+      const res = await window.storage.set(key, value, true);
+      if(res) return res;
+    }catch(e){ /* fall through to local */ }
+  }
+  try{
+    window.localStorage.setItem(LOCAL_PREFIX+key, value);
+    return { key, value, shared:true };
+  }catch(e){
+    return null;
+  }
+}
+
 async function loadMatches(){
   try{
-    const res = await window.storage.get(STORAGE_KEY_MATCHES, true);
+    const res = await storageGet(STORAGE_KEY_MATCHES);
     STATE.matches = res && res.value ? JSON.parse(res.value) : [];
   }catch(e){
     STATE.matches = [];
@@ -679,18 +719,17 @@ async function loadMatches(){
 }
 
 async function saveMatches(){
-  try{
-    await window.storage.set(STORAGE_KEY_MATCHES, JSON.stringify(STATE.matches), true);
-    return true;
-  }catch(e){
+  const res = await storageSet(STORAGE_KEY_MATCHES, JSON.stringify(STATE.matches));
+  if(!res){
     showToast("Could not save — storage error. Try again.");
     return false;
   }
+  return true;
 }
 
 async function loadPositions(){
   try{
-    const res = await window.storage.get(STORAGE_KEY_POSITIONS, true);
+    const res = await storageGet(STORAGE_KEY_POSITIONS);
     STATE.positions = res && res.value ? JSON.parse(res.value) : {};
   }catch(e){
     STATE.positions = {};
@@ -698,18 +737,17 @@ async function loadPositions(){
 }
 
 async function savePositions(){
-  try{
-    await window.storage.set(STORAGE_KEY_POSITIONS, JSON.stringify(STATE.positions), true);
-    return true;
-  }catch(e){
+  const res = await storageSet(STORAGE_KEY_POSITIONS, JSON.stringify(STATE.positions));
+  if(!res){
     showToast("Could not save position — storage error.");
     return false;
   }
+  return true;
 }
 
 async function loadLoginHistory(){
   try{
-    const res = await window.storage.get(STORAGE_KEY_LOGIN_HISTORY, true);
+    const res = await storageGet(STORAGE_KEY_LOGIN_HISTORY);
     STATE.loginHistory = res && res.value ? JSON.parse(res.value) : [];
   }catch(e){
     STATE.loginHistory = [];
@@ -717,12 +755,8 @@ async function loadLoginHistory(){
 }
 
 async function saveLoginHistory(){
-  try{
-    await window.storage.set(STORAGE_KEY_LOGIN_HISTORY, JSON.stringify(STATE.loginHistory), true);
-    return true;
-  }catch(e){
-    return false;
-  }
+  const res = await storageSet(STORAGE_KEY_LOGIN_HISTORY, JSON.stringify(STATE.loginHistory));
+  return !!res;
 }
 
 /* =========================================================
