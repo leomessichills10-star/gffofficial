@@ -605,6 +605,97 @@ footer.site-foot .foot-link{ display:inline-block; margin-top:10px; color:var(--
 footer.site-foot .foot-link:hover{ text-decoration:underline; }
 footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-size:12px; letter-spacing:1px; color:var(--amber); }
 
+/* ---------- New feature additions (v1.4) ---------- */
+
+/* small inline chip used next to a player's name in match-detail tables */
+.sub-chip{
+  display:inline-block; font-family:var(--mono); font-size:8.5px; letter-spacing:.5px; font-weight:700;
+  color:var(--bg); background:var(--ice); padding:2px 6px; border-radius:5px; vertical-align:1px; margin-left:4px;
+}
+.sub-chip.cs{ background:var(--turf); }
+
+/* 6v6-stopped banners */
+.stopped-banner{
+  display:flex; align-items:center; gap:14px; background:rgba(185,28,52,0.08); border:1px solid rgba(185,28,52,.35);
+  border-radius:14px; padding:16px 18px; margin-bottom:22px;
+}
+.stopped-banner .ic{ font-size:22px; flex-shrink:0; }
+.stopped-banner .lbl{ font-family:var(--head); font-size:14px; letter-spacing:.5px; color:var(--crimson); text-transform:uppercase; }
+.stopped-banner .txt{ font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-top:4px; }
+.format-stopped-ribbon{
+  position:absolute; top:10px; left:10px; z-index:2; font-family:var(--mono); font-size:9px; letter-spacing:1.5px;
+  color:var(--crimson); border:1px solid var(--crimson-dim); background:rgba(185,28,52,.1); padding:3px 8px; border-radius:999px;
+}
+
+/* Player Details (birthdate / age / height / weight) */
+.pdetail-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:14px; margin-bottom:14px; }
+.pdetail-card{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+.pdetail-l{ font-family:var(--mono); font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.pdetail-v{ font-family:var(--head); font-size:17px; color:var(--chalk); }
+.pdetail-v.accent{ color:var(--turf); }
+.pdetail-input{
+  width:100%; background:var(--bg); border:1px solid var(--line); color:var(--chalk); padding:9px 10px;
+  border-radius:8px; font-family:var(--body); font-size:13.5px; outline:none; transition:.15s;
+}
+.pdetail-input:focus{ border-color:var(--turf); box-shadow:0 0 0 3px rgba(60,203,110,.14); }
+
+/* Player Achievements trophy cabinet */
+.trophy-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:14px; margin-bottom:34px; }
+.trophy-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; text-align:center; transition:.2s; }
+.trophy-card.has{ border-color:rgba(242,179,61,.4); background:linear-gradient(160deg, var(--surface2), var(--surface)); }
+.trophy-card .trophy-ic{ width:26px; height:30px; margin:0 auto 10px; opacity:.9; }
+.trophy-card .trophy-name{ font-family:var(--head); font-size:12.5px; letter-spacing:.3px; color:var(--muted); text-transform:uppercase; min-height:30px; }
+.trophy-card .trophy-count{ font-family:var(--display); font-size:32px; color:var(--amber); margin-top:6px; }
+.trophy-card .trophy-controls{ display:flex; gap:8px; justify-content:center; margin-top:12px; }
+
+/* Season Highlights (auto-computed hat-tricks / clean sheets) */
+.highlight-grid{ display:flex; flex-direction:column; gap:8px; margin-bottom:34px; }
+.highlight-row{
+  display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--line);
+  border-radius:12px; padding:12px 16px; cursor:pointer; transition:.2s;
+}
+.highlight-row:hover{ border-color:var(--amber); }
+.highlight-row .hl-ic{ font-size:20px; flex-shrink:0; }
+.highlight-row .hl-title{ font-family:var(--head); font-size:13.5px; color:var(--chalk); }
+.highlight-row .hl-meta{ font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-top:2px; }
+
+/* Clean sheet box in the add-match form */
+.cs-box{
+  margin-top:14px; background:rgba(143,217,255,0.06); border:1px dashed rgba(143,217,255,.4); border-radius:12px; padding:12px 16px;
+}
+.cs-toggle{ display:flex; align-items:center; gap:10px; font-family:var(--head); font-size:13px; color:var(--ice); cursor:pointer; }
+.cs-toggle input{ width:16px; height:16px; accent-color:var(--ice); }
+.cs-players{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+.cs-players .cs-hint{ width:100%; font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-bottom:2px; }
+.cs-player-chip{
+  display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; color:var(--chalk);
+  background:var(--bg); border:1px solid var(--line); padding:6px 10px; border-radius:999px; cursor:pointer;
+}
+.cs-player-chip input{ width:13px; height:13px; accent-color:var(--ice); }
+
+/* Substitutions box (5v5 only) in the add-match form */
+.subs-box{
+  margin-top:14px; background:rgba(155,123,255,0.06); border:1px dashed rgba(155,123,255,.4); border-radius:12px; padding:12px 16px;
+}
+.subs-box-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.subs-box .eg-label{ color:var(--violet); }
+.subs-box input[data-role="sub-count"]{
+  width:44px; text-align:center; background:var(--bg); border:1px solid var(--line); color:var(--chalk);
+  padding:9px 6px; border-radius:8px; font-family:var(--mono); font-size:15px; outline:none;
+}
+.subs-rows{ margin-top:12px; }
+.subs-rows .player-row{ border-color:rgba(155,123,255,.25); }
+
+/* Patch Updates (only reachable via GFF Licensing, below the certificate) */
+.patch-shell{ max-width:760px; margin:60px auto 0; }
+.patch-card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px 26px; margin-bottom:16px; }
+.patch-head{ display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+.patch-version{ font-family:var(--display); font-size:20px; color:var(--turf); letter-spacing:1px; }
+.patch-title{ font-family:var(--head); font-size:14px; color:var(--muted); }
+.patch-list{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+.patch-list li{ font-size:13.5px; color:var(--muted); line-height:1.6; padding-left:20px; position:relative; }
+.patch-list li::before{ content:"⚽"; position:absolute; left:0; top:0; font-size:11px; }
+
 /* utility */
 .hidden{ display:none !important; }
 .btn-danger-outline{ border-color:rgba(229,72,77,.4); color:var(--red); }
@@ -676,7 +767,7 @@ const ADMIN_PASSWORD = "992010"; // universal federation password — same for e
 const FORMAT_INFO = {
   "4v4": { perSide:4, total:8, label:"4-a-side" },
   "5v5": { perSide:5, total:10, label:"5-a-side" },
-  "6v6": { perSide:6, total:12, label:"6-a-side" }
+  "6v6": { perSide:6, total:12, label:"6-a-side", stopped:true }
 };
 
 let STATE = {
@@ -684,7 +775,8 @@ let STATE = {
   admin: null,       // {name}
   loaded: false,
   positions: {},      // normalized player name -> position code (GK/DEF/MID/FWD)
-  loginHistory: []     // [{name, ts}]
+  loginHistory: [],    // [{name, ts}]
+  playerData: {}       // normalized player name -> {birthdate, height, weight, trophies:{...}}
 };
 
 /* =========================================================
@@ -738,17 +830,18 @@ try{
 const matchesRef = firebaseReady ? db.ref('matches') : null;
 const positionsRef = firebaseReady ? db.ref('positions') : null;
 const loginHistoryRef = firebaseReady ? db.ref('loginHistory') : null;
+const playerDataRef = firebaseReady ? db.ref('playerData') : null;
 const connectedRef = firebaseReady ? db.ref('.info/connected') : null;
 
-// Tracks whether each of the three locations has delivered its first
-// value yet. STATE.loaded only flips to true once all three have —
-// and importantly, each one flips its flag even on error, so a bad
+// Tracks whether each location has delivered its first value yet.
+// STATE.loaded only flips to true once all of them have — and
+// importantly, each one flips its flag even on error, so a bad
 // config or a permissions problem can never leave the "LOADING
 // OFFICIAL RECORDS…" screen spinning forever.
-const loadFlags = { matches:false, positions:false, loginHistory:false };
+const loadFlags = { matches:false, positions:false, loginHistory:false, playerData:false };
 function markLoadedAndRender(key){
   loadFlags[key] = true;
-  if(loadFlags.matches && loadFlags.positions && loadFlags.loginHistory){
+  if(loadFlags.matches && loadFlags.positions && loadFlags.loginHistory && loadFlags.playerData){
     STATE.loaded = true;
   }
   render();
@@ -788,6 +881,14 @@ function startRealtimeSync(){
   }, err => {
     console.error('loginHistory sync error:', err);
     markLoadedAndRender('loginHistory');
+  });
+
+  playerDataRef.on('value', snap => {
+    STATE.playerData = snap.val() || {};
+    markLoadedAndRender('playerData');
+  }, err => {
+    console.error('playerData sync error:', err);
+    markLoadedAndRender('playerData');
   });
 
   connectedRef.on('value', snap => {
@@ -840,6 +941,18 @@ async function saveLoginHistory(){
     return true;
   }catch(e){
     console.error('saveLoginHistory failed:', e);
+    return false;
+  }
+}
+
+async function savePlayerData(){
+  if(!firebaseReady){ showToast("Not connected to the database yet — see setup instructions."); return false; }
+  try{
+    await playerDataRef.set(STATE.playerData);
+    return true;
+  }catch(e){
+    console.error('savePlayerData failed:', e);
+    showToast("Could not save player data — database error.");
     return false;
   }
 }
@@ -923,6 +1036,89 @@ async function setPlayerPosition(normName, select){
   if(pos) STATE.positions[normName] = pos; else delete STATE.positions[normName];
   await savePositions();
   showToast(pos ? `Position set to ${POSITIONS[pos].label}.` : 'Position cleared.');
+}
+
+/* =========================================================
+   Player data — birthdate / height / weight / age (admin-set)
+   and the Player Achievements trophy cabinet (admin-tallied).
+   None of this appears anywhere in match registration; it only
+   ever shows on an individual player's profile page.
+========================================================= */
+const TROPHY_DEFS = {
+  bestPlayer:      { label:'Best Player' },
+  topScorer:       { label:'Most Goalscorer' },
+  mostAssist:      { label:'Most Assist' },
+  mostCleanSheets: { label:'Most Clean Sheets' },
+  bestGK:          { label:'Best Goalkeeper' },
+  bestYoung:       { label:'Best Young Player' },
+  bestDefender:    { label:'Best Defender' }
+};
+
+function getPlayerData(normName){
+  const d = STATE.playerData[normName] || {};
+  return {
+    birthdate: d.birthdate || '',
+    height: d.height!=null ? d.height : '',
+    weight: d.weight!=null ? d.weight : '',
+    trophies: Object.assign(
+      Object.fromEntries(Object.keys(TROPHY_DEFS).map(k=>[k,0])),
+      d.trophies || {}
+    )
+  };
+}
+
+function calculateAge(birthdateStr){
+  if(!birthdateStr) return null;
+  const bd = new Date(birthdateStr+"T00:00:00");
+  if(isNaN(bd)) return null;
+  const now = new Date();
+  let years = now.getFullYear() - bd.getFullYear();
+  let months = now.getMonth() - bd.getMonth();
+  if(now.getDate() < bd.getDate()) months -= 1;
+  if(months < 0){ years -= 1; months += 12; }
+  if(years < 0) return null;
+  return { years, months };
+}
+
+async function updatePlayerDetail(normName, field, value){
+  if(!STATE.admin) return;
+  const existing = STATE.playerData[normName] || {};
+  const trophies = existing.trophies || Object.fromEntries(Object.keys(TROPHY_DEFS).map(k=>[k,0]));
+  STATE.playerData[normName] = Object.assign({}, existing, { [field]: value, trophies });
+  const ok = await savePlayerData();
+  if(ok){ showToast('Player details updated.'); navigate('player', normName); }
+}
+
+async function adjustTrophy(normName, key, delta){
+  if(!STATE.admin) return;
+  const existing = STATE.playerData[normName] || {};
+  const trophies = Object.assign(Object.fromEntries(Object.keys(TROPHY_DEFS).map(k=>[k,0])), existing.trophies || {});
+  trophies[key] = Math.max(0, (Number(trophies[key])||0) + delta);
+  STATE.playerData[normName] = Object.assign({}, existing, { trophies });
+  const ok = await savePlayerData();
+  if(ok) navigate('player', normName);
+}
+
+/* Season Highlights — computed automatically from every match entry.
+   Not shown as its own stats page; only surfaced inside a player's profile. */
+function getSeasonHighlights(normName){
+  const hattricks = [], assistHats = [], cleanSheets = [];
+  STATE.matches.forEach(m=>{
+    [['team1','team2'],['team2','team1']].forEach(([own,opp])=>{
+      const player = m[own].players.find(p=>normalize(p.name)===normName);
+      if(!player) return;
+      const goals = Number(player.goals)||0;
+      const assists = Number(player.assists)||0;
+      if(goals >= 3) hattricks.push({ match:m, value:goals, teamName:m[own].name, oppName:m[opp].name });
+      if(assists >= 3) assistHats.push({ match:m, value:assists, teamName:m[own].name, oppName:m[opp].name });
+      if(m[own].cleanSheet && Array.isArray(m[own].cleanSheetPlayers) && m[own].cleanSheetPlayers.some(n=>normalize(n)===normName)){
+        cleanSheets.push({ match:m, teamName:m[own].name, oppName:m[opp].name });
+      }
+    });
+  });
+  const byDate = (a,b)=> (b.match.date||'').localeCompare(a.match.date||'') || b.match.createdAt-a.match.createdAt;
+  hattricks.sort(byDate); assistHats.sort(byDate); cleanSheets.sort(byDate);
+  return { hattricks, assistHats, cleanSheets };
 }
 
 /* =========================================================
@@ -1262,6 +1458,7 @@ function renderHome(){
         const count = STATE.matches.filter(m=>m.format===fmt).length;
         return `<div class="format-card" onclick="navigate('records','${fmt}')">
           ${footballSVG('format-ball')}
+          ${info.stopped ? `<div class="format-stopped-ribbon">STOPPED</div>` : ''}
           <div class="format-num">${fmt.split('v')[0]}</div>
           <div class="format-name">${fmt.toUpperCase()} · ${info.label}</div>
           <div class="format-meta">${info.total} players on pitch — ${info.perSide} per side</div>
@@ -1382,20 +1579,27 @@ function renderRecords(fmt){
     <div style="display:flex; gap:8px;">${tabs}</div>
   </div>
 
+  ${info.stopped ? `
+    <div class="stopped-banner">
+      <span class="ic">⛔</span>
+      <div><div class="lbl">${fmt.toUpperCase()} FIXTURES STOPPED</div><div class="txt">No new ${fmt} matches can be registered. Every previously saved ${fmt} match remains permanently archived below.</div></div>
+    </div>
+  ` : ''}
+
   ${matches.length === 0 ? `
     <div class="empty-state">
       <div class="ic">🗂️</div>
       <b>No ${fmt} matches recorded yet</b>
-      ${STATE.admin ? `Log the first fixture to start the archive.` : `Check back once an admin logs a fixture — or log in to add one.`}
+      ${info.stopped ? `` : (STATE.admin ? `Log the first fixture to start the archive.` : `Check back once an admin logs a fixture — or log in to add one.`)}
       <div style="margin-top:18px;">
-        ${STATE.admin ? `<button class="pill-btn primary" onclick="navigate('addmatch','${fmt}')">+ Add ${fmt} Match</button>` : `<button class="pill-btn" onclick="openLoginModal()">Admin Login</button>`}
+        ${info.stopped ? '' : (STATE.admin ? `<button class="pill-btn primary" onclick="navigate('addmatch','${fmt}')">+ Add ${fmt} Match</button>` : `<button class="pill-btn" onclick="openLoginModal()">Admin Login</button>`)}
       </div>
     </div>
   ` : `
     <div class="match-grid">
       ${matches.map(m=>renderScorecard(m)).join('')}
     </div>
-    ${STATE.admin ? `<div style="margin-top:26px; text-align:center;"><button class="pill-btn primary" onclick="navigate('addmatch','${fmt}')">+ Add Another ${fmt} Match</button></div>` : ''}
+    ${(STATE.admin && !info.stopped) ? `<div style="margin-top:26px; text-align:center;"><button class="pill-btn primary" onclick="navigate('addmatch','${fmt}')">+ Add Another ${fmt} Match</button></div>` : ''}
   `}
   `;
 }
@@ -1436,16 +1640,25 @@ function renderMatchDetail(id){
 
   ${m.motm ? `<div class="motm-banner"><span class="ic">🏆</span><div><div class="lbl">MAN OF THE MATCH</div><div class="nm">${esc(m.motm)}</div></div></div>` : ''}
 
+  ${(m.team1.cleanSheet || m.team2.cleanSheet) ? `
+    <div class="motm-banner" style="border-color:rgba(143,217,255,.3); background:rgba(143,217,255,.07);">
+      <span class="ic">🧤</span>
+      <div>
+        <div class="lbl" style="color:var(--ice);">CLEAN SHEET${(m.team1.cleanSheet && m.team2.cleanSheet)?'S':''}</div>
+        <div class="nm">${[m.team1.cleanSheet?esc(m.team1.name):null, m.team2.cleanSheet?esc(m.team2.name):null].filter(Boolean).join(' &amp; ')}</div>
+      </div>
+    </div>` : ''}
+
   <div class="team-tables">
     ${[m.team1, m.team2].map(team=>`
       <div class="team-table-wrap">
-        <div class="tt-head">${esc(team.name)}</div>
+        <div class="tt-head">${esc(team.name)}${team.cleanSheet ? ' · 🧤 Clean Sheet' : ''}</div>
         <table class="roster">
           <thead><tr><th>Player</th><th>G</th><th>A</th><th>S</th><th>Cards</th><th>Rating</th></tr></thead>
           <tbody>
             ${team.players.map(p=>`
               <tr onclick="navigate('player','${esc(normalize(p.name))}')" style="cursor:pointer;">
-                <td class="pname">${esc(p.name)}</td>
+                <td class="pname">${esc(p.name)}${p.isSub ? ' <span class="sub-chip">SUB</span>' : ''}${team.cleanSheet && Array.isArray(team.cleanSheetPlayers) && team.cleanSheetPlayers.some(n=>normalize(n)===normalize(p.name)) ? ' <span class="sub-chip cs">CS</span>' : ''}</td>
                 <td class="num">${p.goals||0}</td>
                 <td class="num">${p.assists||0}</td>
                 <td class="num">${p.saves||0}</td>
@@ -1536,6 +1749,12 @@ function renderPlayerProfile(normName){
     <div class="pp-stat-card"><div class="v">${avgRating}</div><div class="l">Avg Rating</div></div>
   </div>
 
+  ${renderPlayerDetailsSection(normName)}
+
+  ${renderTrophySection(normName)}
+
+  ${renderSeasonHighlights(normName)}
+
   <div class="section-title-row"><h2>Match History</h2></div>
   <div>
     ${history.map(h=>`
@@ -1547,6 +1766,88 @@ function renderPlayerProfile(normName){
       </div>
     `).join('')}
   </div>
+  `;
+}
+
+/* ---------- Player profile: details / trophies / season highlights ---------- */
+function renderPlayerDetailsSection(normName){
+  const pd = getPlayerData(normName);
+  const age = calculateAge(pd.birthdate);
+  const ageStr = age ? `${age.years} yr${age.years===1?'':'s'} ${age.months} mo` : '—';
+  return `
+  <div class="section-title-row"><h2>📋 Player Details</h2></div>
+  <div class="pdetail-grid">
+    <div class="pdetail-card">
+      <div class="pdetail-l">Birthdate</div>
+      ${STATE.admin ? `<input type="date" class="pdetail-input" value="${esc(pd.birthdate)}" onchange="updatePlayerDetail('${esc(normName)}','birthdate',this.value)">`
+                    : `<div class="pdetail-v">${pd.birthdate ? formatDate(pd.birthdate) : '—'}</div>`}
+    </div>
+    <div class="pdetail-card">
+      <div class="pdetail-l">Age</div>
+      <div class="pdetail-v accent">${ageStr}</div>
+    </div>
+    <div class="pdetail-card">
+      <div class="pdetail-l">Height (cm)</div>
+      ${STATE.admin ? `<input type="number" min="0" step="0.1" class="pdetail-input" value="${esc(pd.height)}" placeholder="e.g. 178" onchange="updatePlayerDetail('${esc(normName)}','height',this.value===''?'':Number(this.value))">`
+                    : `<div class="pdetail-v">${pd.height!==''? pd.height+' cm' : '—'}</div>`}
+    </div>
+    <div class="pdetail-card">
+      <div class="pdetail-l">Weight (kg)</div>
+      ${STATE.admin ? `<input type="number" min="0" step="0.1" class="pdetail-input" value="${esc(pd.weight)}" placeholder="e.g. 70" onchange="updatePlayerDetail('${esc(normName)}','weight',this.value===''?'':Number(this.value))">`
+                    : `<div class="pdetail-v">${pd.weight!==''? pd.weight+' kg' : '—'}</div>`}
+    </div>
+  </div>
+  ${STATE.admin ? `<div class="lb-meta" style="margin:-14px 0 30px; color:var(--muted-dim);">Only admins can set birthdate, height &amp; weight. These never appear in match registration — only here.</div>` : ''}
+  `;
+}
+
+function renderTrophySection(normName){
+  const pd = getPlayerData(normName);
+  return `
+  <div class="section-title-row"><h2>🏆 Player Achievements</h2></div>
+  <div class="trophy-grid">
+    ${Object.keys(TROPHY_DEFS).map(key=>{
+      const count = pd.trophies[key]||0;
+      return `
+      <div class="trophy-card ${count>0?'has':''}">
+        <div class="trophy-ic">${trophySVG('')}</div>
+        <div class="trophy-name">${TROPHY_DEFS[key].label}</div>
+        <div class="trophy-count">${count}</div>
+        ${STATE.admin ? `
+          <div class="trophy-controls">
+            <button class="eg-step" onclick="adjustTrophy('${esc(normName)}','${key}',-1)">−</button>
+            <button class="eg-step" onclick="adjustTrophy('${esc(normName)}','${key}',1)">+</button>
+          </div>` : ''}
+      </div>`;
+    }).join('')}
+  </div>
+  `;
+}
+
+function renderSeasonHighlights(normName){
+  const h = getSeasonHighlights(normName);
+  const total = h.hattricks.length + h.assistHats.length + h.cleanSheets.length;
+  return `
+  <div class="section-title-row"><h2>⭐ Season Highlights</h2></div>
+  ${total===0 ? `<div class="empty-state" style="margin-bottom:30px;"><div class="ic">⭐</div><b>No exceptional performances yet</b>Hat-tricks, assist hat-tricks and clean sheets are picked up automatically from match records.</div>` : `
+  <div class="highlight-grid">
+    ${h.hattricks.map(x=>`
+      <div class="highlight-row" onclick="navigate('match','${x.match.id}')">
+        <span class="hl-ic">⚽</span>
+        <div class="hl-body"><div class="hl-title">Hat-trick — ${x.value} goals</div><div class="hl-meta">${formatDate(x.match.date)} · ${esc(x.teamName)} vs ${esc(x.oppName)}</div></div>
+      </div>`).join('')}
+    ${h.assistHats.map(x=>`
+      <div class="highlight-row" onclick="navigate('match','${x.match.id}')">
+        <span class="hl-ic">🎯</span>
+        <div class="hl-body"><div class="hl-title">Assist hat-trick — ${x.value} assists</div><div class="hl-meta">${formatDate(x.match.date)} · ${esc(x.teamName)} vs ${esc(x.oppName)}</div></div>
+      </div>`).join('')}
+    ${h.cleanSheets.map(x=>`
+      <div class="highlight-row" onclick="navigate('match','${x.match.id}')">
+        <span class="hl-ic">🧤</span>
+        <div class="hl-body"><div class="hl-title">Clean sheet</div><div class="hl-meta">${formatDate(x.match.date)} · ${esc(x.teamName)} vs ${esc(x.oppName)}</div></div>
+      </div>`).join('')}
+  </div>
+  `}
   `;
 }
 
@@ -1658,6 +1959,38 @@ function renderLicense(){
       </div>
     </div>
   </div>
+  ${renderPatchNotes()}
+  `;
+}
+
+/* ---------- Patch Update log ----------
+   Deliberately only reachable by opening GFF Licensing and scrolling
+   below the certificate — there is no separate nav entry for it. */
+function renderPatchNotes(){
+  const entries = [
+    {
+      version:'v1.4',
+      title:'Player Files, Achievements & Substitutions',
+      items:[
+        'Player profiles can now hold birthdate, height and weight — with age auto-calculated in years and months. Admin-set only, and never shown during match registration.',
+        'New Player Achievements trophy cabinet on every profile: Best Player, Most Goalscorer, Most Assist, Most Clean Sheets, Best Goalkeeper, Best Young Player, Best Defender — tallied by admins.',
+        'Season Highlights added to player profiles: goal hat-tricks, assist hat-tricks and clean sheets are now picked up automatically from match records.',
+        'Match registration now supports logging a clean sheet per team and crediting the players who earned it.',
+        '5v5 matches support substitute players with their own full stat line, added via an adjustable substitutes panel.',
+        '6v6 fixture registration has been paused by the Federation. Every previously saved 6v6 result remains permanently archived and browsable.'
+      ]
+    }
+  ];
+  return `
+  <div class="patch-shell">
+    <div class="section-title-row"><h2>📋 Patch Updates</h2></div>
+    ${entries.map(e=>`
+      <div class="patch-card">
+        <div class="patch-head"><span class="patch-version">${esc(e.version)}</span><span class="patch-title">${esc(e.title)}</span></div>
+        <ul class="patch-list">${e.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+      </div>
+    `).join('')}
+  </div>
   `;
 }
 
@@ -1718,6 +2051,14 @@ function renderAddMatch(fmt){
   }
   if(!FORMAT_INFO[fmt]) fmt = '4v4';
   const info = FORMAT_INFO[fmt];
+  if(info.stopped){
+    return `<div class="empty-state">
+      <div class="ic">⛔</div>
+      <b>${fmt.toUpperCase()} Fixtures Stopped</b>
+      Registration for new ${fmt} matches has been paused by the Federation. Previously saved ${fmt} matches remain fully archived and browsable.
+      <div style="margin-top:18px;"><button class="pill-btn" onclick="navigate('records','${fmt}')">Back to ${fmt.toUpperCase()} Records</button></div>
+    </div>`;
+  }
   const today = new Date().toISOString().slice(0,10);
 
   function playerRow(team, idx){
@@ -1750,6 +2091,34 @@ function renderAddMatch(fmt){
     </div>`;
   }
 
+  function cleanSheetBox(team){
+    return `
+    <div class="cs-box" data-team="${team}">
+      <label class="cs-toggle">
+        <input type="checkbox" class="cs-toggle-input" onchange="toggleCleanSheet('${team}', this)"> 🧤 Clean sheet maintained
+      </label>
+      <div class="cs-players hidden" id="cs-players-${team}"></div>
+    </div>`;
+  }
+
+  function subsBox(team){
+    return `
+    <div class="subs-box" data-team="${team}">
+      <div class="subs-box-head">
+        <div>
+          <div class="eg-label">🔄 Substitutions</div>
+          <div class="eg-hint">Add substitute players with their own match stats. Use +/− to set how many substitute slots to show.</div>
+        </div>
+        <div class="eg-input-wrap">
+          <button type="button" class="eg-step" onclick="stepSubCount('${team}',-1)">−</button>
+          <input data-role="sub-count" type="number" min="0" max="5" value="0" readonly>
+          <button type="button" class="eg-step" onclick="stepSubCount('${team}',1)">+</button>
+        </div>
+      </div>
+      <div class="subs-rows" id="subs-rows-${team}"></div>
+    </div>`;
+  }
+
   return `
   <div class="crumbs"><span onclick="navigate('home')">Home</span> / <span onclick="navigate('records','${fmt}')">${fmt.toUpperCase()} Records</span> / New Match</div>
   <div class="page-head"><div><h1>Log a ${fmt.toUpperCase()} Match</h1><div class="desc">${info.total} players total — ${info.perSide} per side. Team names are fixed as Team 1 and Team 2 for consistency.</div></div></div>
@@ -1765,11 +2134,15 @@ function renderAddMatch(fmt){
         <div class="roster-col-head"><h3>Team 1</h3></div>
         ${Array.from({length:info.perSide}).map((_,i)=>playerRow('t1', i)).join('')}
         ${extraGoalBox('t1')}
+        ${cleanSheetBox('t1')}
+        ${fmt==='5v5' ? subsBox('t1') : ''}
       </div>
       <div>
         <div class="roster-col-head"><h3>Team 2</h3></div>
         ${Array.from({length:info.perSide}).map((_,i)=>playerRow('t2', i)).join('')}
         ${extraGoalBox('t2')}
+        ${cleanSheetBox('t2')}
+        ${fmt==='5v5' ? subsBox('t2') : ''}
       </div>
     </div>
 
@@ -1797,7 +2170,7 @@ function onNameInput(el){
   const slot = document.querySelector(`[data-suggest-for="${team}-${idx}"]`);
   const registry = getAllPlayerNames();
   const val = el.value;
-  if(!val.trim()){ slot.innerHTML=''; return; }
+  if(!val.trim()){ slot.innerHTML=''; refreshCleanSheetPlayers(team); return; }
   const result = findCanonical(val, registry);
   if(result.exact && normalize(result.exact) !== normalize(val)){
     // silently correct casing/spacing to match official record
@@ -1810,6 +2183,7 @@ function onNameInput(el){
   } else {
     slot.innerHTML = `<div class="suggest-line" style="color:var(--muted);">New player — will be permanently registered on save.</div>`;
   }
+  refreshCleanSheetPlayers(team);
 }
 function applySuggestion(el){
   const name = el.getAttribute('data-name');
@@ -1817,6 +2191,7 @@ function applySuggestion(el){
   const input = container.querySelector('input[data-role="name"]');
   input.value = name;
   el.innerHTML = `✓ Matched to existing player <b>${esc(name)}</b>`;
+  refreshCleanSheetPlayers(container.dataset.team);
 }
 
 function stepExtraGoal(team, delta){
@@ -1826,9 +2201,92 @@ function stepExtraGoal(team, delta){
   input.value = next;
 }
 
+/* ---------- 5v5 substitutions (admin adjusts the count up/down; each slot gets its own stats) ---------- */
+function subPlayerRowHTML(team, idx){
+  return `
+    <div class="player-row" data-team="${team}" data-sub="true" data-idx="sub-${idx}">
+      <input class="pname" data-role="name" type="text" placeholder="Substitute ${idx+1} name" list="playersList" oninput="onNameInput(this)">
+      <div><span class="mini-lbl">Goals</span><input data-role="goals" type="number" min="0" value="0"></div>
+      <div><span class="mini-lbl">Assists</span><input data-role="assists" type="number" min="0" value="0"></div>
+      <div><span class="mini-lbl">Saves</span><input data-role="saves" type="number" min="0" value="0"></div>
+      <div><span class="mini-lbl">Yellow</span><input data-role="yellow" type="number" min="0" max="2" value="0"></div>
+      <div><span class="mini-lbl">Red</span><input data-role="red" type="number" min="0" max="1" value="0"></div>
+      <div><span class="mini-lbl">Rating</span><input data-role="rating" type="number" min="0" max="10" step="0.1" placeholder="0-10"></div>
+    </div>
+    <div class="suggest-slot" data-suggest-for="${team}-sub-${idx}"></div>
+  `;
+}
+
+function stepSubCount(team, delta){
+  const box = document.querySelector(`.subs-box[data-team="${team}"]`);
+  if(!box) return;
+  const countInput = box.querySelector('input[data-role="sub-count"]');
+  const rowsContainer = document.getElementById(`subs-rows-${team}`);
+  let count = Math.max(0, Math.min(5, (Number(countInput.value)||0) + delta));
+
+  // preserve any values already entered before rebuilding the row list
+  const existingRows = [...rowsContainer.querySelectorAll('.player-row')];
+  const existingData = existingRows.map(r=>['name','goals','assists','saves','yellow','red','rating'].reduce((o,role)=>{
+    o[role] = r.querySelector(`input[data-role="${role}"]`).value; return o;
+  },{}));
+
+  countInput.value = count;
+  rowsContainer.innerHTML = Array.from({length:count}).map((_,i)=>subPlayerRowHTML(team,i)).join('');
+  [...rowsContainer.querySelectorAll('.player-row')].forEach((r,i)=>{
+    if(!existingData[i]) return;
+    ['name','goals','assists','saves','yellow','red','rating'].forEach(role=>{
+      r.querySelector(`input[data-role="${role}"]`).value = existingData[i][role];
+    });
+  });
+  refreshCleanSheetPlayers(team);
+}
+
+function collectSubPlayers(team, count){
+  const players = [];
+  for(let i=0;i<count;i++){
+    const row = document.querySelector(`.player-row[data-team="${team}"][data-sub="true"][data-idx="sub-${i}"]`);
+    if(!row) continue;
+    const name = row.querySelector('input[data-role="name"]').value.trim();
+    if(!name) continue; // substitute slots are optional — skip empty ones silently
+    players.push({
+      name,
+      goals: Number(row.querySelector('input[data-role="goals"]').value)||0,
+      assists: Number(row.querySelector('input[data-role="assists"]').value)||0,
+      saves: Number(row.querySelector('input[data-role="saves"]').value)||0,
+      yellow: Number(row.querySelector('input[data-role="yellow"]').value)||0,
+      red: Number(row.querySelector('input[data-role="red"]').value)||0,
+      rating: row.querySelector('input[data-role="rating"]').value === '' ? null : Number(row.querySelector('input[data-role="rating"]').value),
+      isSub: true
+    });
+  }
+  return players;
+}
+
+/* ---------- Clean sheet credit (any format) ---------- */
+function toggleCleanSheet(team, checkbox){
+  const wrap = document.getElementById(`cs-players-${team}`);
+  if(!wrap) return;
+  if(!checkbox.checked){ wrap.classList.add('hidden'); wrap.innerHTML=''; return; }
+  wrap.classList.remove('hidden');
+  refreshCleanSheetPlayers(team);
+}
+
+function refreshCleanSheetPlayers(team){
+  const wrap = document.getElementById(`cs-players-${team}`);
+  if(!wrap || wrap.classList.contains('hidden')) return;
+  const names = [...document.querySelectorAll(`.player-row[data-team="${team}"] input[data-role="name"]`)]
+    .map(i=>i.value.trim()).filter(Boolean);
+  const existingChecked = new Set([...wrap.querySelectorAll('input[type="checkbox"]:checked')].map(c=>c.value));
+  wrap.innerHTML = names.length
+    ? `<div class="cs-hint">Select the players credited for the clean sheet:</div>` + names.map(n=>`
+        <label class="cs-player-chip"><input type="checkbox" value="${esc(n)}" ${existingChecked.has(n)?'checked':''}> ${esc(n)}</label>
+      `).join('')
+    : `<div class="cs-hint">Enter player names above first.</div>`;
+}
+
 function shuffleTeams(fmt){
   const info = FORMAT_INFO[fmt];
-  const rows = [...document.querySelectorAll('.player-row')];
+  const rows = [...document.querySelectorAll('.player-row:not([data-sub="true"])')];
   const names = rows.map(r=>r.querySelector('input[data-role="name"]').value.trim()).filter(Boolean);
   if(names.length < 2){ showToast('Enter at least a couple of names first.'); return; }
   for(let i=names.length-1;i>0;i--){
@@ -1867,6 +2325,7 @@ function collectTeamPlayers(team, count){
 async function submitMatch(fmt){
   if(!STATE.admin) return;
   const info = FORMAT_INFO[fmt];
+  if(info.stopped){ showToast(`${fmt.toUpperCase()} registration is stopped.`); return; }
   const errBox = document.getElementById('mf-err');
   const date = document.getElementById('mf-date').value;
   if(!date){ errBox.innerHTML = `<div class="err-text">Pick a match date.</div>`; return; }
@@ -1875,9 +2334,17 @@ async function submitMatch(fmt){
   const t2 = collectTeamPlayers('t2', info.perSide);
   if(!t1 || !t2){ errBox.innerHTML = `<div class="err-text">All ${info.total} player names are required (${info.perSide} per side).</div>`; return; }
 
+  // 5v5 substitutes (optional) — merged into each team's player list, tagged isSub
+  const sub1Count = fmt==='5v5' ? Number((document.querySelector('.subs-box[data-team="t1"] input[data-role="sub-count"]')||{}).value)||0 : 0;
+  const sub2Count = fmt==='5v5' ? Number((document.querySelector('.subs-box[data-team="t2"] input[data-role="sub-count"]')||{}).value)||0 : 0;
+  const subs1 = collectSubPlayers('t1', sub1Count);
+  const subs2 = collectSubPlayers('t2', sub2Count);
+  const allT1 = t1.concat(subs1);
+  const allT2 = t2.concat(subs2);
+
   // resolve names against registry for consistent canonical casing
   const registry = getAllPlayerNames();
-  [...t1, ...t2].forEach(p=>{
+  [...allT1, ...allT2].forEach(p=>{
     const r = findCanonical(p.name, registry);
     if(r.exact) p.name = r.exact;
     else registry.set(normalize(p.name), p.name);
@@ -1893,13 +2360,20 @@ async function submitMatch(fmt){
   const eg1 = Number(document.querySelector('.extra-goal-box[data-team="t1"] input[data-role="extra-goals"]').value) || 0;
   const eg2 = Number(document.querySelector('.extra-goal-box[data-team="t2"] input[data-role="extra-goals"]').value) || 0;
 
+  const cs1Toggle = document.querySelector('.cs-box[data-team="t1"] .cs-toggle-input');
+  const cs2Toggle = document.querySelector('.cs-box[data-team="t2"] .cs-toggle-input');
+  const cs1 = cs1Toggle ? cs1Toggle.checked : false;
+  const cs2 = cs2Toggle ? cs2Toggle.checked : false;
+  const cs1Players = cs1 ? [...document.querySelectorAll(`#cs-players-t1 input[type="checkbox"]:checked`)].map(c=>c.value) : [];
+  const cs2Players = cs2 ? [...document.querySelectorAll(`#cs-players-t2 input[type="checkbox"]:checked`)].map(c=>c.value) : [];
+
   const match = {
     id: uid(),
     format: fmt,
     date,
     createdAt: Date.now(),
-    team1: { name:'Team 1', players:t1, extraGoals:eg1 },
-    team2: { name:'Team 2', players:t2, extraGoals:eg2 },
+    team1: { name:'Team 1', players:allT1, extraGoals:eg1, cleanSheet:cs1, cleanSheetPlayers:cs1Players },
+    team2: { name:'Team 2', players:allT2, extraGoals:eg2, cleanSheet:cs2, cleanSheetPlayers:cs2Players },
     motm: motm || null,
     loggedBy: STATE.admin.name
   };
