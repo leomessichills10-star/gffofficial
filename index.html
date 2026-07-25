@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gardens Football Federation — Official Match Records</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#07080f;
@@ -38,6 +38,14 @@
   --body: 'Inter', sans-serif;
   --mono: 'JetBrains Mono', monospace;
   --radius: 14px;
+  --paper: #ece3cf;
+  --paper2: #e2d6b8;
+  --paper-ink: #211a10;
+  --paper-ink-dim: #4a3f2c;
+  --paper-line: #7a6a46;
+  --paper-rule: rgba(33,26,16,0.35);
+  --gazette: 'Playfair Display', 'Georgia', serif;
+  --gazette-body: 'Libre Baskerville', 'Georgia', serif;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 html{scroll-behavior:smooth;}
@@ -54,27 +62,25 @@ body{
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--surface3); border-radius:8px;}
 
-/* ---------- Ambient background (concrete tunnel dark, subtle turf hint) ---------- */
+/* ---------- Ambient background: a full-screen soccer pitch, always
+   drawn vertically (goal-to-goal top to bottom) regardless of the
+   device's actual screen shape, cropped to cover like a photo. ---------- */
 #bg-fx{
-  position:fixed; inset:0; z-index:0; pointer-events:none;
-  background:
-    repeating-linear-gradient(112deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 90px, transparent 90px, transparent 180px),
-    repeating-linear-gradient(112deg, rgba(0,0,0,0.14) 0px, rgba(0,0,0,0.14) 180px, transparent 180px, transparent 270px),
-    radial-gradient(ellipse 140% 100% at 50% 50%, transparent 42%, rgba(2,3,7,0.6) 100%),
-    linear-gradient(180deg, var(--bg2) 0%, var(--bg) 42%);
+  position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; background:var(--bg);
 }
+#bg-fx svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 #bg-fx::before{
   content:"";
   position:absolute; left:0; right:0; top:0; height:2px;
   background:linear-gradient(90deg, transparent, var(--ice-glow), transparent);
   animation: sweep 9s linear infinite;
-  opacity:0.5;
+  opacity:0.5; z-index:1;
 }
 #bg-fx::after{
   content:"";
   position:absolute; inset:0;
   background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255,255,255,0.04), transparent 70%);
-  opacity:0.5; mix-blend-mode:overlay;
+  opacity:0.5; mix-blend-mode:overlay; z-index:1;
 }
 @keyframes sweep{
   0%{ top:-2px; opacity:0;}
@@ -696,6 +702,84 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
 .patch-list li{ font-size:13.5px; color:var(--muted); line-height:1.6; padding-left:20px; position:relative; }
 .patch-list li::before{ content:"⚽"; position:absolute; left:0; top:0; font-size:11px; }
 
+/* Federation News — styled as a vintage newspaper clipping sitting on the dark page */
+.section-news{ margin-top:56px; }
+.gazette-masthead{
+  background:var(--paper); color:var(--paper-ink); border-radius:4px 4px 0 0;
+  padding:18px 26px 14px; text-align:center; position:relative;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  border:1px solid var(--paper-line); border-bottom:none;
+}
+.gazette-masthead .gm-top{
+  display:flex; align-items:center; justify-content:space-between; font-family:var(--mono);
+  font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--paper-ink-dim);
+  border-bottom:1px solid var(--paper-rule); padding-bottom:8px; margin-bottom:10px;
+}
+.gazette-masthead .gm-name{
+  font-family:var(--gazette); font-weight:900; font-size:clamp(30px,5vw,46px); letter-spacing:.5px;
+  line-height:1; text-transform:uppercase;
+}
+.gazette-masthead .gm-tagline{
+  font-family:var(--gazette-body); font-style:italic; font-size:12.5px; color:var(--paper-ink-dim); margin-top:6px;
+}
+.gazette-masthead .gm-rule{ height:4px; margin-top:12px; background:
+  repeating-linear-gradient(90deg, var(--paper-ink) 0 3px, transparent 3px 6px);
+  opacity:.85;
+}
+.news-feed{
+  display:flex; flex-direction:column; background:var(--paper); border:1px solid var(--paper-line); border-top:none;
+  border-radius:0 0 4px 4px; padding:6px 4px 18px; box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+.news-card{
+  position:relative; background:transparent; color:var(--paper-ink);
+  border:none; border-top:1px solid var(--paper-rule); border-radius:0; padding:22px 26px 20px;
+  transition:.15s; cursor:pointer;
+}
+.news-card:first-child{ border-top:none; }
+.news-card:hover{ background:rgba(33,26,16,0.045); }
+.news-card.featured{ padding:28px 30px 24px; }
+.news-card.featured .news-headline{ font-size:clamp(24px,3.4vw,34px); }
+.news-card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.news-tag{
+  font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--paper-ink);
+  border:1px solid var(--paper-ink); padding:3px 9px; border-radius:0; opacity:.85;
+}
+.news-remove{
+  background:transparent; border:1px solid var(--paper-line); color:var(--paper-ink-dim); width:26px; height:26px; border-radius:4px;
+  cursor:pointer; font-family:var(--mono); font-size:12px; transition:.2s; flex-shrink:0;
+}
+.news-remove:hover{ border-color:var(--crimson); color:var(--crimson); }
+.news-headline{
+  font-family:var(--gazette); font-weight:900; font-size:22px; letter-spacing:.2px; line-height:1.15;
+  color:var(--paper-ink); margin-bottom:8px;
+}
+.news-dateline{ font-family:var(--mono); font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--paper-ink-dim); margin-bottom:10px; }
+.news-body{ font-family:var(--gazette-body); font-size:14.5px; color:var(--paper-ink-dim); line-height:1.7; white-space:pre-wrap; }
+.news-body::first-letter{ font-family:var(--gazette); font-weight:900; font-size:2.8em; float:left; line-height:.85; padding:2px 6px 0 0; color:var(--paper-ink); }
+.news-meta{ margin-top:14px; font-family:var(--mono); font-size:9.5px; color:var(--paper-line); letter-spacing:.5px; border-top:1px dotted var(--paper-rule); padding-top:8px; }
+
+/* Correspondent byline — old-timey "By ___" credit line, no photo, initials seal instead */
+.news-byline{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.news-avatar{
+  width:36px; height:36px; border-radius:50%; flex-shrink:0;
+  background:var(--paper-ink); color:var(--paper);
+  border:2px solid var(--paper-ink); display:flex; align-items:center; justify-content:center;
+  font-family:var(--gazette); font-weight:700; font-size:13px; letter-spacing:.5px;
+}
+.news-avatar.lg{ width:48px; height:48px; font-size:17px; }
+.news-byline-name{ font-family:var(--gazette-body); font-style:italic; font-weight:700; font-size:13px; color:var(--paper-ink); }
+.news-byline-role{ font-family:var(--mono); font-size:8.5px; color:var(--paper-ink-dim); letter-spacing:1px; text-transform:uppercase; margin-top:1px; }
+.news-quote{ position:relative; font-family:var(--gazette-body); font-style:italic; font-size:14.5px; color:var(--paper-ink); line-height:1.65; }
+.news-quote-mark{ font-family:var(--gazette); font-weight:900; font-size:24px; color:var(--paper-line); margin-right:3px; vertical-align:-5px; }
+
+/* Full-story modal — same paper treatment */
+.news-modal{ max-width:560px; background:var(--paper); color:var(--paper-ink); border-color:var(--paper-line); }
+.news-modal h3{ font-family:var(--gazette); font-weight:900; color:var(--paper-ink); font-size:24px; }
+.news-modal-body p{ font-family:var(--gazette-body); font-size:14.5px; color:var(--paper-ink-dim); line-height:1.75; margin-bottom:12px; }
+.news-modal-body p:first-of-type::first-letter{ font-family:var(--gazette); font-weight:900; font-size:2.6em; float:left; line-height:.8; padding:3px 6px 0 0; color:var(--paper-ink); }
+.news-modal-body p:last-child{ margin-bottom:0; }
+.news-modal .modal-actions .pill-btn{ background:var(--paper-ink); color:var(--paper); border:none; }
+
 /* utility */
 .hidden{ display:none !important; }
 .btn-danger-outline{ border-color:rgba(229,72,77,.4); color:var(--red); }
@@ -706,7 +790,48 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
 </head>
 <body>
 
-<div id="bg-fx"></div>
+<div id="bg-fx">
+  <svg viewBox="0 0 400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="pitchBG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#050a06"/>
+        <stop offset="50%" stop-color="#0e2116"/>
+        <stop offset="100%" stop-color="#050a06"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="400" height="900" fill="url(#pitchBG)"/>
+    <rect x="0" y="60" width="400" height="60" fill="#ffffff" opacity="0.02"/>
+    <rect x="0" y="180" width="400" height="60" fill="#ffffff" opacity="0.02"/>
+    <rect x="0" y="300" width="400" height="60" fill="#ffffff" opacity="0.02"/>
+    <rect x="0" y="420" width="400" height="60" fill="#ffffff" opacity="0.02"/>
+    <rect x="0" y="540" width="400" height="60" fill="#ffffff" opacity="0.02"/>
+    <rect x="0" y="660" width="400" height="60" fill="#ffffff" opacity="0.02"/>
+    <rect x="0" y="780" width="400" height="60" fill="#ffffff" opacity="0.02"/>
+    <g fill="none" stroke="var(--chalk)" stroke-width="1.5" opacity="0.13">
+      <!-- outer touchlines -->
+      <rect x="16" y="16" width="368" height="868"/>
+      <!-- halfway line + centre circle -->
+      <line x1="16" y1="450" x2="384" y2="450"/>
+      <circle cx="200" cy="450" r="62"/>
+      <!-- top penalty area + six-yard box -->
+      <rect x="112" y="16" width="176" height="130"/>
+      <rect x="160" y="16" width="80" height="50"/>
+      <!-- bottom penalty area + six-yard box -->
+      <rect x="112" y="754" width="176" height="130"/>
+      <rect x="160" y="834" width="80" height="50"/>
+      <!-- corner arcs -->
+      <path d="M16,30 A14,14 0 0 0 30,16"/>
+      <path d="M370,16 A14,14 0 0 0 384,30"/>
+      <path d="M384,870 A14,14 0 0 0 370,884"/>
+      <path d="M30,884 A14,14 0 0 0 16,870"/>
+    </g>
+    <g fill="var(--chalk)" opacity="0.16">
+      <circle cx="200" cy="450" r="2.5"/>
+      <circle cx="200" cy="112" r="2.5"/>
+      <circle cx="200" cy="788" r="2.5"/>
+    </g>
+  </svg>
+</div>
 
 <header id="topbar">
   <div class="brand" onclick="navigate('home')">
@@ -732,6 +857,7 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
       <div class="dropdown">
         <a onclick="navigate('stats','topscorers')">⚽ Top Scorers</a>
         <a onclick="navigate('stats','assists')">🎯 Most Assists</a>
+        <a onclick="navigate('stats','goalcontrib')">⚡ Goal + Assist</a>
         <a onclick="navigate('stats','bestplayer')">🏆 Best Player</a>
         <a onclick="navigate('stats','mostsaves')">🧤 Most Saves</a>
         <a onclick="navigate('stats','yellow')">🟨 Yellow Cards</a>
@@ -776,7 +902,9 @@ let STATE = {
   loaded: false,
   positions: {},      // normalized player name -> position code (GK/DEF/MID/FWD)
   loginHistory: [],    // [{name, ts}]
-  playerData: {}       // normalized player name -> {birthdate, height, weight, trophies:{...}}
+  playerData: {},      // normalized player name -> {birthdate, height, weight, trophies:{...}}
+  news: [],            // admin-posted announcements + weekly reports: [{id, headline, body|teaser/story, createdAt, expiresAt, postedBy, kind}]
+  weekLog: []          // admin-triggered week boundaries: [{week, endedAt, matchIds}]
 };
 
 /* =========================================================
@@ -831,6 +959,8 @@ const matchesRef = firebaseReady ? db.ref('matches') : null;
 const positionsRef = firebaseReady ? db.ref('positions') : null;
 const loginHistoryRef = firebaseReady ? db.ref('loginHistory') : null;
 const playerDataRef = firebaseReady ? db.ref('playerData') : null;
+const newsRef = firebaseReady ? db.ref('news') : null;
+const weekLogRef = firebaseReady ? db.ref('weekLog') : null;
 const connectedRef = firebaseReady ? db.ref('.info/connected') : null;
 
 // Tracks whether each location has delivered its first value yet.
@@ -838,10 +968,10 @@ const connectedRef = firebaseReady ? db.ref('.info/connected') : null;
 // importantly, each one flips its flag even on error, so a bad
 // config or a permissions problem can never leave the "LOADING
 // OFFICIAL RECORDS…" screen spinning forever.
-const loadFlags = { matches:false, positions:false, loginHistory:false, playerData:false };
+const loadFlags = { matches:false, positions:false, loginHistory:false, playerData:false, news:false, weekLog:false };
 function markLoadedAndRender(key){
   loadFlags[key] = true;
-  if(loadFlags.matches && loadFlags.positions && loadFlags.loginHistory && loadFlags.playerData){
+  if(loadFlags.matches && loadFlags.positions && loadFlags.loginHistory && loadFlags.playerData && loadFlags.news && loadFlags.weekLog){
     STATE.loaded = true;
   }
   render();
@@ -889,6 +1019,24 @@ function startRealtimeSync(){
   }, err => {
     console.error('playerData sync error:', err);
     markLoadedAndRender('playerData');
+  });
+
+  newsRef.on('value', snap => {
+    const val = snap.val();
+    STATE.news = val ? Object.values(val) : [];
+    markLoadedAndRender('news');
+  }, err => {
+    console.error('news sync error:', err);
+    markLoadedAndRender('news');
+  });
+
+  weekLogRef.on('value', snap => {
+    const val = snap.val();
+    STATE.weekLog = val ? Object.values(val) : [];
+    markLoadedAndRender('weekLog');
+  }, err => {
+    console.error('weekLog sync error:', err);
+    markLoadedAndRender('weekLog');
   });
 
   connectedRef.on('value', snap => {
@@ -953,6 +1101,30 @@ async function savePlayerData(){
   }catch(e){
     console.error('savePlayerData failed:', e);
     showToast("Could not save player data — database error.");
+    return false;
+  }
+}
+
+async function saveNews(){
+  if(!firebaseReady){ showToast("Not connected to the database yet — see setup instructions."); return false; }
+  try{
+    await newsRef.set(STATE.news);
+    return true;
+  }catch(e){
+    console.error('saveNews failed:', e);
+    showToast("Could not save news — database error.");
+    return false;
+  }
+}
+
+async function saveWeekLog(){
+  if(!firebaseReady){ showToast("Not connected to the database yet — see setup instructions."); return false; }
+  try{
+    await weekLogRef.set(STATE.weekLog);
+    return true;
+  }catch(e){
+    console.error('saveWeekLog failed:', e);
+    showToast("Could not save week log — database error.");
     return false;
   }
 }
@@ -1143,6 +1315,20 @@ function ratingTier(r){
   return { name:'BRONZE', c1:'#3a2818', c2:'#140d08', accent:'#c98a4d', border:'#8a5c34' };
 }
 
+/* "Best Player" season-impact score. Deliberately NOT based on Man of
+   the Match count — MOTM rewards one or two standout matches, which
+   isn't the same as being the Federation's best player over a full,
+   grueling season. Instead this rewards three things together:
+     - presence: appearances made (being consistently available)
+     - direct impact: goals + assists, weighted toward goals
+     - sustained quality: average match rating across every appearance,
+       which naturally favours consistent performers over one-hit wonders
+*/
+function bestPlayerScore(p){
+  const avgRating = p.ratingCount ? (p.ratingSum/p.ratingCount) : 0;
+  return (p.matches*1) + (p.goals*2) + (p.assists*1.5) + (avgRating*3);
+}
+
 function getAllPlayerNames(){
   const set = new Map(); // normalized -> canonical display name
   STATE.matches.forEach(m=>{
@@ -1178,14 +1364,15 @@ function refreshPlayersDatalist(){
 /* =========================================================
    Stats computation
 ========================================================= */
-function computeAggregates(){
+function computeAggregates(matchList){
+  matchList = matchList || STATE.matches;
   const players = {}; // normalized -> {name, goals, assists, saves, yellow, red, motm, ratingSum, ratingCount, matches}
   function ensure(name){
     const n = normalize(name);
     if(!players[n]) players[n] = { name: titleCasePreserve(name), goals:0, assists:0, saves:0, yellow:0, red:0, motm:0, ratingSum:0, ratingCount:0, matches:0 };
     return players[n];
   }
-  STATE.matches.forEach(m=>{
+  matchList.forEach(m=>{
     [...m.team1.players, ...m.team2.players].forEach(p=>{
       const rec = ensure(p.name);
       rec.goals += Number(p.goals)||0;
@@ -1201,7 +1388,7 @@ function computeAggregates(){
       if(players[n]) players[n].motm += 1;
     }
   });
-  return Object.values(players);
+  return Object.values(players).map(p=>{ p.ga = p.goals + p.assists; return p; });
 }
 
 /* Returns the full match history for one player (by normalized name), most recent first */
@@ -1219,6 +1406,354 @@ function getPlayerHistory(normName){
   // de-duplicate in case a player somehow appears twice (shouldn't, but guards against corrupt data)
   const seen = new Set();
   return rows.filter(r=>{ if(seen.has(r.match.id)) return false; seen.add(r.match.id); return true; });
+}
+
+/* =========================================================
+   Federation News — a home-page news feed.
+   When the admin has an active (non-expired) announcement, it's
+   shown. Otherwise the app writes its own short recap: a summary
+   of the latest match if one was played recently, or a rotating
+   historical highlight pulled from the archive on quiet days.
+========================================================= */
+const NEWS_RECENT_WINDOW_DAYS = 7;
+
+function daysSince(dateStr){
+  const d = new Date(dateStr+"T00:00:00");
+  if(isNaN(d)) return Infinity;
+  return Math.floor((new Date() - d) / (1000*60*60*24));
+}
+function hashStr(s){
+  let h = 0;
+  for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; }
+  return h;
+}
+function pick(arr, seed){ return arr[seed % arr.length]; }
+
+function getActiveNews(){
+  const now = Date.now();
+  return (STATE.news||[]).filter(n=> n.expiresAt==null || n.expiresAt > now).sort((a,b)=>b.createdAt-a.createdAt);
+}
+
+/* The Federation's own in-house correspondent — an original character,
+   not a real person. Gets an illustrated initials badge, never a photo. */
+const NEWS_CORRESPONDENT = { name:'Marco Delvecchio', role:'GFF Chief Correspondent — No Filter, No Mercy', initials:'MD' };
+
+function generateMatchRecap(m){
+  const s1 = scoreOf(m.team1), s2 = scoreOf(m.team2);
+  const seed = hashStr(m.id);
+  const draw = s1===s2;
+  const winnerTeam = s1>s2 ? m.team1 : m.team2;
+  const loserTeam = s1>s2 ? m.team2 : m.team1;
+  const winnerScore = Math.max(s1,s2), loserScore = Math.min(s1,s2);
+  const margin = winnerScore - loserScore;
+  const blowout = margin >= 4;
+  const rout = margin >= 2 && margin < 4;
+
+  const headline = draw ? pick([
+    `${m.team1.name} and ${m.team2.name} bore the entire pitch to a ${s1}-${s2} standstill`,
+    `Nobody wins as ${m.team1.name} and ${m.team2.name} limp to a gutless ${s1}-${s2} draw`,
+    `${m.team1.name} ${s1}-${s2} ${m.team2.name}: ninety minutes neither side deserved`
+  ], seed) : blowout ? pick([
+    `${winnerTeam.name} take ${loserTeam.name} to the cleaners, ${winnerScore}-${loserScore}`,
+    `${loserTeam.name} humiliated ${winnerScore}-${loserScore} as ${winnerTeam.name} feast`,
+    `${winnerTeam.name} run riot, leave ${loserTeam.name} in ruins ${winnerScore}-${loserScore}`
+  ], seed) : rout ? pick([
+    `${winnerTeam.name} put ${loserTeam.name} firmly in their place, ${winnerScore}-${loserScore}`,
+    `${loserTeam.name} outclassed, outfought and outscored ${winnerScore}-${loserScore}`,
+    `${winnerTeam.name} make light work of a toothless ${loserTeam.name}, ${winnerScore}-${loserScore}`
+  ], seed) : pick([
+    `${winnerTeam.name} scrape past a stubborn ${loserTeam.name}, ${winnerScore}-${loserScore}`,
+    `${winnerTeam.name} survive a scare to edge ${loserTeam.name} ${winnerScore}-${loserScore}`,
+    `${loserTeam.name} give it everything, still walk away empty-handed ${loserScore}-${winnerScore}`
+  ], seed);
+
+  const allPlayers = [...m.team1.players, ...m.team2.players];
+  const scorers = allPlayers.filter(p=>(+p.goals||0)>0).sort((a,b)=>(+b.goals||0)-(+a.goals||0));
+  const topScorer = scorers[0];
+  const otherScorers = scorers.slice(1,4);
+  const cleanSheetTeam = m.team1.cleanSheet ? m.team1.name : (m.team2.cleanSheet ? m.team2.name : null);
+  const cleanSheetOpp = m.team1.cleanSheet ? m.team2.name : (m.team2.cleanSheet ? m.team1.name : null);
+  const cardEvents = allPlayers.filter(p=>(+p.yellow||0)>0 || (+p.red||0)>0);
+  const subsUsed = allPlayers.filter(p=>p.isSub).length;
+  const extraGoals = (+m.team1.extraGoals||0) + (+m.team2.extraGoals||0);
+
+  const teaser = draw
+    ? `${m.team1.name} and ${m.team2.name} cancelled each other out in a ${s1}-${s2} snooze-fest${topScorer? `, salvaged only by ${topScorer.name} finding the net.`:' that nobody will be putting on the highlight reel.'}`
+    : `${winnerTeam.name} put ${loserTeam.name} to the sword ${winnerScore}-${loserScore}${topScorer? ` as ${(+topScorer.goals)>=3?`${topScorer.name} helped himself to a hat-trick`:`${topScorer.name} did the damage with ${topScorer.goals} goal${topScorer.goals===1?'':'s'}`}.`:', in a game that will not live long in the memory.'}`;
+
+  const story = [];
+  story.push(`${pick(['Under the lights','On a scrappy afternoon','In front of whoever bothered to show up','Out on the Federation turf'],seed+1)}, ${m.team1.name} and ${m.team2.name} went at it in a ${m.format.toUpperCase()} fixture on ${formatDate(m.date)}${draw ? `, and somehow contrived to finish level at ${s1}-${s2} — a scoreline that flatters both sides equally.` : blowout ? `, and it was over long before full time. ${winnerTeam.name} did not just win, they made a point: ${winnerScore}-${loserScore}.` : `, with ${winnerTeam.name} eventually getting the job done ${winnerScore}-${loserScore}.`}`);
+
+  if(topScorer){
+    const g = +topScorer.goals;
+    story.push(g>=3
+      ? `${topScorer.name} was the story of the match, helping himself to a hat-trick and leaving the opposition defence chasing shadows.${otherScorers.length? ` ${otherScorers.map(o=>o.name).join(' and ')} joined in too, because apparently one merciless finisher wasn't enough punishment for one afternoon.`:''}`
+      : `${topScorer.name} was the only one who turned up with any end product, chipping in with ${g} goal${g===1?'':'s'}${otherScorers.length? `, with a bit of help from ${otherScorers.map(o=>o.name).join(' and ')}.`:' while everyone else on the pitch admired the view.'}`);
+  } else if(!extraGoals && !draw){
+    story.push(`Neither side could muster a single moment of quality in front of goal — ninety minutes of huffing and puffing that produced absolutely nothing worth talking about.`);
+  } else if(!extraGoals && draw){
+    story.push(`Chances were nonexistent and finishing was worse. This was less a football match, more two teams politely declining to lose.`);
+  }
+
+  if(cleanSheetTeam){
+    story.push(`${cleanSheetTeam} kept a clean sheet — which says as much about ${cleanSheetOpp}'s toothless finishing as it does about any defending. Either way, it's on the record now.`);
+  }
+
+  if(cardEvents.length){
+    story.push(`Tempers frayed and discipline went out the window: cards shown to ${cardEvents.map(p=>`${p.name} (${(+p.red>0)?'red — an early bath, no complaints':'yellow, and lucky it wasn\u2019t worse'})`).join(', ')}. Somebody needs to have a word.`);
+  }
+
+  if(subsUsed>0){
+    story.push(`${subsUsed} substitute${subsUsed===1?'':'s'} came off the bench, though whether they actually changed anything is a matter for the archive, not this reporter.`);
+  }
+
+  if(m.motm){
+    story.push(`${m.motm} walked away with the Man of the Match award, comfortably the standout performer in a match that otherwise had little to shout about.`);
+  }
+
+  story.push(pick([
+    `Another result, filed and forgotten by most — but not by the archive.`,
+    `Full time, and frankly, not a moment too soon.`,
+    `That's the final word: official, on the record, and open to nobody's appeal.`,
+    `Result locked into the Federation's books — deserved or not, it counts.`
+  ], seed+3));
+
+  return { headline, teaser, story };
+}
+
+function generateHistoricalHighlight(){
+  const agg = computeAggregates();
+  const candidates = [];
+
+  const topScorer = [...agg].sort((a,b)=>b.goals-a.goals)[0];
+  if(topScorer && topScorer.goals>0) candidates.push({
+    headline: `${topScorer.name} still bullying the scoring charts`,
+    teaser: `${topScorer.name} sits top of the all-time scoring charts with ${topScorer.goals} goal${topScorer.goals===1?'':'s'} — and nobody else is close.`,
+    story: [
+      `Since these records began in 2024, one name refuses to leave the top of the scoring charts: ${topScorer.name}.`,
+      `${topScorer.goals} goal${topScorer.goals===1?'':'s'} from ${topScorer.matches} appearance${topScorer.matches===1?'':'s'} isn't luck, it's a pattern — everyone else on this list is playing for second place.`,
+      `Every chasing forward keeps saying this is the season they catch up. It never is.`
+    ]
+  });
+
+  const topAssist = [...agg].sort((a,b)=>b.assists-a.assists)[0];
+  if(topAssist && topAssist.assists>0) candidates.push({
+    headline: `${topAssist.name} makes everyone else look good — for a change`,
+    teaser: `${topAssist.name} has laid on ${topAssist.assists} assist${topAssist.assists===1?'':'s'} — more than any other player bothered to manage.`,
+    story: [
+      `Some players finish the move. ${topAssist.name} does the actual work and lets someone else take the glory — and still ends up top of this list anyway.`,
+      `${topAssist.assists} assist${topAssist.assists===1?'':'s'} across ${topAssist.matches} appearance${topAssist.matches===1?'':'s'} while half the forwards in this league can't finish a chance from two yards. Draw your own conclusions.`,
+      `It won't make the highlight reel. It'll still be the reason someone else does.`
+    ]
+  });
+
+  if(agg.length){
+    const bestRated = agg.map(p=>({p, r:cardRating(p)})).sort((a,b)=>b.r-a.r)[0];
+    candidates.push({
+      headline: `${bestRated.p.name} sits above everyone — for now`,
+      teaser: `Rated ${bestRated.r} overall, ${bestRated.p.name} is the highest-rated player on file, and everybody else is fighting for scraps.`,
+      story: [
+        `Every player carries a community FC Rating built from goals, assists, saves, discipline and average match rating — and right now, nobody else in this archive gets close to ${bestRated.p.name}.`,
+        `A rating of ${bestRated.r} from ${bestRated.p.matches} recorded appearance${bestRated.p.matches===1?'':'s'} isn't a fluke, it's a gap. A big one.`,
+        `Ratings are only ever a snapshot, though — one bad match and this whole list gets rewritten. This reporter will enjoy watching that happen.`
+      ]
+    });
+  }
+
+  const mostMotm = [...agg].sort((a,b)=>b.motm-a.motm)[0];
+  if(mostMotm && mostMotm.motm>0) candidates.push({
+    headline: `${mostMotm.name} keeps hogging Man of the Match`,
+    teaser: `${mostMotm.name} has picked up ${mostMotm.motm} Man of the Match award${mostMotm.motm===1?'':'s'} — more than anyone else, and it isn't particularly close.`,
+    story: [
+      `Goals and assists are one thing. Man of the Match awards are the panel actually agreeing someone was the best player on the pitch — and ${mostMotm.name} keeps winning that argument.`,
+      `${mostMotm.motm} award${mostMotm.motm===1?'':'s'} isn't a hot streak, it's a habit. The rest of the league has had plenty of chances to stop it and hasn't managed it yet.`,
+      `Consistency like that is hard to fake — and judging by the archive, nobody else here has even tried.`
+    ]
+  });
+
+  candidates.push({
+    headline: `Godspeed FC still run the honours board, whether anyone likes it or not`,
+    teaser: `Godspeed FC remain the most decorated side in Federation history with 2 Division 1 titles — and it isn't close.`,
+    story: [
+      `Individual form comes and goes week to week. The honours board doesn't lie, and right now it belongs to Godspeed FC.`,
+      `Two Division 1 titles put them clear at the top, with Galacticos FC and GG Beetles trailing on one apiece — chasing shadows, if this reporter is being honest.`,
+      `Every match logged from here adds another line to a history somebody else is going to have to work very hard to overwrite.`
+    ]
+  });
+
+  const totalMatches = STATE.matches.length;
+  const totalGoals = STATE.matches.reduce((s,m)=> s + scoreOf(m.team1) + scoreOf(m.team2), 0);
+  candidates.push(totalMatches>0 ? {
+    headline: `${totalMatches} matches in the books, and the standards still aren't improving`,
+    teaser: `The archive now holds ${totalMatches} official fixture${totalMatches===1?'':'s'} and ${totalGoals} recorded goal${totalGoals===1?'':'s'} — for better or worse.`,
+    story: [
+      `Quiet week on the pitch. The numbers, unfortunately, don't stop keeping score in the background.`,
+      `The Federation archive now holds ${totalMatches} official fixture${totalMatches===1?'':'s'} across every format, totalling ${totalGoals} recorded goal${totalGoals===1?'':'s'} since 2024 — some of them even deliberate.`,
+      `Every one of them permanent. Every one of them official. Nobody gets to quietly forget a bad result here.`
+    ]
+  } : {
+    headline: `The archive is empty and, frankly, so is the highlight reel`,
+    teaser: `No matches have been recorded yet — the Federation archive is still waiting for someone to actually show up and play one.`,
+    story: [
+      `A blank page. No fixtures, no scorers, no red cards to write about — just an archive waiting for somebody to give this reporter something to work with.`,
+      `Once an admin logs the first official match, this space fills up fast — recaps, hat-tricks, clean sheets, and no shortage of criticism.`,
+      `Every great rivalry starts with a first result. This one's still waiting, and the patience is wearing thin.`
+    ]
+  });
+
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000);
+  return candidates[dayOfYear % candidates.length];
+}
+
+function generateAutoNews(){
+  const sorted = [...STATE.matches].sort((a,b)=> (b.date||'').localeCompare(a.date||'') || b.createdAt-a.createdAt);
+  const latest = sorted[0];
+  if(latest && daysSince(latest.date) <= NEWS_RECENT_WINDOW_DAYS) return generateMatchRecap(latest);
+  return generateHistoricalHighlight();
+}
+
+async function submitNews(){
+  if(!STATE.admin) return;
+  const headline = document.getElementById('news-headline').value.trim();
+  const body = document.getElementById('news-body').value.trim();
+  const duration = Number(document.getElementById('news-duration').value)||0;
+  const unit = document.getElementById('news-unit').value;
+  const errBox = document.getElementById('news-err');
+  if(!headline || !body){ errBox.innerHTML = `<div class="err-text">Add both a headline and details.</div>`; return; }
+  if(duration <= 0){ errBox.innerHTML = `<div class="err-text">Set a visibility duration of at least 1.</div>`; return; }
+  const now = Date.now();
+  const msPerDay = 24*60*60*1000;
+  const durationMs = unit==='months' ? duration*30*msPerDay : duration*msPerDay;
+  const item = { id:'n_'+now+'_'+Math.random().toString(36).slice(2,7), headline, body, createdAt:now, expiresAt:now+durationMs, postedBy:STATE.admin.name };
+  STATE.news = [item, ...(STATE.news||[])];
+  closeModal();
+  const ok = await saveNews();
+  if(ok){ showToast('News posted to the home page.'); navigate('home'); }
+}
+
+async function deleteNews(id){
+  if(!STATE.admin) return;
+  STATE.news = (STATE.news||[]).filter(n=>n.id!==id);
+  await saveNews();
+  showToast('News removed.');
+  navigate('home');
+}
+
+/* =========================================================
+   Weekly reports — admin-only "End Week" tool.
+   Groups every match not yet claimed by a previous week into
+   the next week number, then has the correspondent file a
+   short, brutal recap: top 3 players of the week (by
+   week-only performance) and the highest overall-rated cards
+   among that week's participants. Posted straight to the news
+   feed like any other correspondent story — never shown as an
+   option to anyone who isn't logged in as admin.
+========================================================= */
+function getUnloggedMatches(){
+  const logged = new Set();
+  (STATE.weekLog||[]).forEach(w=>(w.matchIds||[]).forEach(id=>logged.add(id)));
+  return STATE.matches.filter(m=>!logged.has(m.id));
+}
+
+function generateWeeklyReport(weekMatches, weekNumber, topThree, highestRated){
+  const seed = hashStr('week-'+weekNumber+'-'+weekMatches.length);
+  const totalGoals = weekMatches.reduce((s,m)=>s+scoreOf(m.team1)+scoreOf(m.team2),0);
+  const headline = pick([
+    `Week ${weekNumber} in the books — and the standards did not improve`,
+    `Week ${weekNumber} wrapped: some earned it, most just got away with it`,
+    `Week ${weekNumber} review: the good, the ugly, and the frankly average`
+  ], seed);
+  const teaser = topThree[0]
+    ? `${weekMatches.length} match${weekMatches.length===1?'':'es'} played, ${totalGoals} goal${totalGoals===1?'':'s'} scored, and ${topThree[0].name} was the only one who consistently turned up.`
+    : `${weekMatches.length} match${weekMatches.length===1?'':'es'} played this week, and honestly, none of it was worth writing home about.`;
+
+  const story = [];
+  story.push(`Week ${weekNumber} is officially closed: ${weekMatches.length} fixture${weekMatches.length===1?'':'s'} played, ${totalGoals} goal${totalGoals===1?'':'s'} recorded, and the archive is exactly as unforgiving as ever.`);
+
+  if(topThree.length){
+    story.push(`Top of the pile this week: ${topThree.map((p,i)=>`${i+1}. ${p.name} (${p.goals}G ${p.assists}A${p.ratingCount?`, ${(p.ratingSum/p.ratingCount).toFixed(1)} avg`:''})`).join(', ')}. Everyone else made up the numbers.`);
+  } else {
+    story.push(`Nobody did enough this week to justify a top three. That's not a compliment to anyone left off it — it's a criticism of everyone who was eligible.`);
+  }
+
+  if(highestRated.length){
+    story.push(`On raw FC Rating, the standouts among this week's crowd were ${highestRated.map(p=>`${p.name} (${p.rating})`).join(', ')} — the rest still have work to do before their card is worth printing.`);
+  }
+
+  story.push(pick([
+    `Week ${weekNumber}, closed and filed. Week ${weekNumber+1} starts now, and this reporter expects better.`,
+    `That's the week, on the record, no appeals. See everyone next week — try harder.`,
+    `Week ${weekNumber} is locked into Federation history exactly as it happened. No re-writes, no excuses.`
+  ], seed+1));
+
+  return { headline, teaser, story };
+}
+
+function openEndWeekModal(){
+  if(!STATE.admin) return;
+  const pending = getUnloggedMatches();
+  const nextWeek = (STATE.weekLog||[]).length + 1;
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>End Week ${nextWeek}?</h3>
+      <p class="hint">${pending.length===0
+        ? `No new matches have been recorded since the last week ended. Ending the week now will file an empty report.`
+        : `${pending.length} match${pending.length===1?'':'es'} recorded since the last week ended will be sealed into Week ${nextWeek}. The correspondent will file a short recap with the top 3 players of the week and the highest-rated cards among them. This can't be undone.`}</p>
+      <div class="modal-actions">
+        <button class="pill-btn" onclick="closeModal()">Cancel</button>
+        <button class="pill-btn primary" onclick="submitEndWeek()">End Week ${nextWeek}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function submitEndWeek(){
+  if(!STATE.admin) return;
+  const pending = getUnloggedMatches();
+  const weekNumber = (STATE.weekLog||[]).length + 1;
+
+  const weekAgg = computeAggregates(pending).filter(p=>p.matches>0);
+  const topThree = [...weekAgg].sort((a,b)=> bestPlayerScore(b)-bestPlayerScore(a)).slice(0,3);
+
+  const overallAgg = computeAggregates();
+  const participantNames = new Set(weekAgg.map(p=>normalize(p.name)));
+  const highestRated = overallAgg
+    .filter(p=>participantNames.has(normalize(p.name)))
+    .map(p=>({ name:p.name, rating:cardRating(p) }))
+    .sort((a,b)=>b.rating-a.rating)
+    .slice(0,3);
+
+  const report = generateWeeklyReport(pending, weekNumber, topThree, highestRated);
+  const now = Date.now();
+  const newsItem = {
+    id: 'w_'+now+'_'+Math.random().toString(36).slice(2,7),
+    kind: 'weekly',
+    week: weekNumber,
+    headline: report.headline,
+    teaser: report.teaser,
+    story: report.story,
+    createdAt: now,
+    expiresAt: null,
+    postedBy: STATE.admin.name
+  };
+
+  const backupNews = STATE.news, backupWeekLog = STATE.weekLog;
+  STATE.news = [newsItem, ...(STATE.news||[])];
+  STATE.weekLog = [...(STATE.weekLog||[]), { week:weekNumber, endedAt:now, matchIds: pending.map(m=>m.id) }];
+
+  closeModal();
+  const ok1 = await saveNews();
+  const ok2 = await saveWeekLog();
+  if(ok1 && ok2){
+    showToast(`Week ${weekNumber} ended — report filed.`);
+    navigate('home');
+  }else{
+    STATE.news = backupNews;
+    STATE.weekLog = backupWeekLog;
+    showToast('Could not end the week — try again.');
+  }
 }
 
 /* =========================================================
@@ -1302,6 +1837,99 @@ function renderView(view, param){
     case 'license': return renderLicense();
     default: return renderHome();
   }
+}
+
+/* ---------- Federation News (home page) ---------- */
+let NEWS_CACHE = {};
+
+function renderNewsSection(){
+  const active = getActiveNews();
+  const isAuto = active.length===0;
+  const items = isAuto ? [generateAutoNews()] : active;
+  NEWS_CACHE = {};
+  const keyed = items.map((n,i)=>{
+    const key = isAuto ? ('auto-'+i) : n.id;
+    NEWS_CACHE[key] = n;
+    return { n, key };
+  });
+  return `
+  <section class="section-news">
+    <div class="section-title-row">
+      <h2><span class="dot" style="display:inline-block; margin-right:8px;"></span>Federation News</h2>
+      ${STATE.admin ? `<span style="display:flex; gap:16px;"><span class="view-all" onclick="openNewsModal()">+ Post News</span><span class="view-all" onclick="openEndWeekModal()" style="color:var(--crimson);">🏁 End Week</span></span>` : ''}
+    </div>
+    <div class="gazette-masthead">
+      <div class="gm-top"><span>Est. 2024</span><span>${formatDate(new Date().toISOString().slice(0,10))}</span><span>No Bias, No Mercy</span></div>
+      <div class="gm-name">The Gardens Gazette</div>
+      <div class="gm-tagline">"Official Record of the Gardens Football Federation — Every Result, Every Reputation, On the Record"</div>
+      <div class="gm-rule"></div>
+    </div>
+    <div class="news-feed">
+      ${keyed.map(({n,key}, i)=>renderNewsCard(n, isAuto || n.kind==='weekly', i===0, key)).join('')}
+    </div>
+  </section>
+  `;
+}
+
+function renderNewsCard(n, correspondentStyle, featured, key){
+  if(correspondentStyle){
+    return `
+    <div class="news-card correspondent ${featured?'featured':''}" onclick="openNewsDetail('${key}')">
+      <div class="news-byline">
+        <div class="news-avatar">${NEWS_CORRESPONDENT.initials}</div>
+        <div>
+          <div class="news-byline-name">By ${esc(NEWS_CORRESPONDENT.name)}</div>
+          <div class="news-byline-role">${esc(n.kind==='weekly' ? `Week ${n.week} Report` : NEWS_CORRESPONDENT.role)}</div>
+        </div>
+      </div>
+      <div class="news-headline">${esc(n.headline)}</div>
+      <div class="news-quote"><span class="news-quote-mark">“</span>${esc(n.teaser)}</div>
+      <div class="news-meta">${n.kind==='weekly' ? `Filed ${formatDate(new Date(n.createdAt).toISOString().slice(0,10))}` : 'Filed by the newsroom'} · Tap to read the full story</div>
+    </div>
+    `;
+  }
+  const meta = `Visible until ${formatDate(new Date(n.expiresAt).toISOString().slice(0,10))}${n.postedBy ? ' · posted by '+esc(n.postedBy) : ''}`;
+  return `
+  <div class="news-card ${featured?'featured':''}" onclick="openNewsDetail('${key}')">
+    <div class="news-card-top">
+      <span class="news-tag">FEDERATION ANNOUNCEMENT</span>
+      ${STATE.admin ? `<button class="news-remove" onclick="event.stopPropagation(); deleteNews('${n.id}')" title="Remove this announcement">✕</button>` : ''}
+    </div>
+    <div class="news-headline">${esc(n.headline)}</div>
+    <div class="news-body">${esc(n.body)}</div>
+    <div class="news-meta">${meta}</div>
+  </div>
+  `;
+}
+
+function openNewsDetail(key){
+  const n = NEWS_CACHE[key];
+  if(!n) return;
+  const isAuto = key.indexOf('auto-')===0;
+  const correspondentStyle = isAuto || n.kind==='weekly';
+  const root = document.getElementById('modal-root');
+  const storyHtml = correspondentStyle
+    ? n.story.map(p=>`<p>${esc(p)}</p>`).join('')
+    : `<p>${esc(n.body)}</p>`;
+  root.innerHTML = `
+  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+    <div class="modal news-modal">
+      ${correspondentStyle ? `
+        <div class="news-byline">
+          <div class="news-avatar lg">${NEWS_CORRESPONDENT.initials}</div>
+          <div>
+            <div class="news-byline-name">By ${esc(NEWS_CORRESPONDENT.name)}</div>
+            <div class="news-byline-role">${esc(n.kind==='weekly' ? `Week ${n.week} Report` : NEWS_CORRESPONDENT.role)}</div>
+          </div>
+        </div>
+      ` : `<span class="news-tag">FEDERATION ANNOUNCEMENT</span>`}
+      <h3 style="margin-top:14px;">${esc(n.headline)}</h3>
+      <div class="news-modal-body">${storyHtml}</div>
+      <div class="modal-actions">
+        <button class="pill-btn primary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 function renderHome(){
@@ -1494,6 +2122,8 @@ function renderHome(){
     </div>
   </section>
 
+  ${renderNewsSection()}
+
   <div class="turf-divider"><svg viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M0,40 L0,20 L40,28 L80,12 L120,26 L160,10 L200,24 L240,8 L280,22 L320,12 L360,26 L400,10 L440,24 L480,14 L520,28 L560,12 L600,22 L640,8 L680,24 L720,12 L760,26 L800,10 L840,24 L880,14 L920,28 L960,12 L1000,22 L1040,8 L1080,24 L1120,12 L1160,26 L1200,18 L1200,40 Z" fill="var(--surface)"/>
   </svg></div>
@@ -1511,7 +2141,9 @@ function renderHome(){
 /* Football-card style registry, shared by the home preview and the full Players Registered page.
    prefix distinguishes DOM ids so the home section and the full page can coexist without collisions. */
 function renderPlayerCardsSection(prefix){
-  const agg = computeAggregates().sort((a,b)=> a.name.localeCompare(b.name));
+  const agg = computeAggregates()
+    .map(p=>{ p.rating = cardRating(p); return p; })
+    .sort((a,b)=> b.rating-a.rating || a.name.localeCompare(b.name));
   if(agg.length===0){
     return `<div class="empty-state"><div class="ic">🪪</div><b>No players registered yet</b>Players are added to this directory automatically the first time they appear in a saved match.</div>`;
   }
@@ -1855,7 +2487,8 @@ function renderSeasonHighlights(normName){
 const STAT_DEFS = {
   topscorers: { title:'Top Scorers', desc:'Ranked by total goals across every recorded match.', field:'goals', unit:'GOALS', cls:'' },
   assists: { title:'Most Assists', desc:'Ranked by total assists laid on across every recorded match.', field:'assists', unit:'ASSISTS', cls:'' },
-  bestplayer: { title:'Best Player', desc:'Ranked by Man of the Match awards. Ties broken by average match rating.', field:'motm', unit:'MOTM', cls:'' },
+  goalcontrib: { title:'Goal + Assist', desc:'Ranked by total goal contributions — goals and assists combined.', field:'ga', unit:'G+A', cls:'' },
+  bestplayer: { title:'Best Player', desc:'Ranked by season-long impact — presence, goals and assists, and sustained performance across every match, rather than a couple of standout Man of the Match moments.', field:'bpScore', unit:'SEASON IMPACT', cls:'' },
   mostsaves: { title:'Most Saves', desc:'Ranked by total saves recorded — goalkeeping honours.', field:'saves', unit:'SAVES', cls:'' },
   yellow: { title:'Yellow Cards', desc:'Ranked by total yellow cards received.', field:'yellow', unit:'YELLOWS', cls:'yellow' },
   red: { title:'Red Cards', desc:'Ranked by total red cards received.', field:'red', unit:'REDS', cls:'red' },
@@ -1864,10 +2497,13 @@ const STAT_DEFS = {
 function renderStats(kind){
   if(!STAT_DEFS[kind]) kind='topscorers';
   const def = STAT_DEFS[kind];
-  let agg = computeAggregates().filter(p=>p[def.field] > 0);
+  let agg = computeAggregates();
   if(kind==='bestplayer'){
-    agg.sort((a,b)=> b.motm-a.motm || (b.ratingCount? b.ratingSum/b.ratingCount:0) - (a.ratingCount? a.ratingSum/a.ratingCount:0));
+    agg = agg.map(p=>{ p.bpScore = bestPlayerScore(p); return p; }).filter(p=>p.bpScore > 0);
+    agg.sort((a,b)=> b.bpScore-a.bpScore || (b.goals+b.assists)-(a.goals+a.assists) || b.matches-a.matches);
+    agg = agg.slice(0, 10);
   }else{
+    agg = agg.filter(p=>p[def.field] > 0);
     agg.sort((a,b)=> b[def.field]-a[def.field]);
   }
   const max = agg.length ? agg[0][def.field] : 1;
@@ -1877,21 +2513,24 @@ function renderStats(kind){
   return `
   <div class="crumbs"><span onclick="navigate('home')">Home</span> / Stats / ${def.title}</div>
   <div class="page-head">
-    <div><h1>${def.title}</h1><div class="desc">${def.desc}</div></div>
+    <div><h1>${def.title}</h1><div class="desc">${def.desc}${kind==='bestplayer' ? ' Top 10 shown.' : ''}</div></div>
   </div>
   <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px;">${tabs}</div>
 
-  ${agg.length===0 ? `<div class="empty-state"><div class="ic">📊</div><b>No data yet</b>This leaderboard fills in once matches record ${def.unit.toLowerCase()}.</div>` : `
+  ${agg.length===0 ? `<div class="empty-state"><div class="ic">📊</div><b>No data yet</b>This leaderboard fills in once matches record ${kind==='bestplayer' ? 'enough appearances and contributions' : def.unit.toLowerCase()}.</div>` : `
     <div class="lb-list">
-      ${agg.map((p,i)=>`
+      ${agg.map((p,i)=>{
+        const posCode = kind==='bestplayer' ? getPlayerPosition(normalize(p.name)) : null;
+        const posLabel = posCode ? POSITIONS[posCode].label : 'Position not set';
+        return `
         <div class="lb-row ${def.cls} ${i===0?'top1':i===1?'top2':i===2?'top3':''}">
           <div class="lb-rank">${i+1}</div>
           <div class="lb-name">${esc(p.name)}</div>
-          <div class="lb-meta">${p.matches} match${p.matches===1?'':'es'}${p.ratingCount? ' · avg '+(p.ratingSum/p.ratingCount).toFixed(1)+'★':''}</div>
+          <div class="lb-meta">${kind==='bestplayer' ? esc(posLabel) : `${p.matches} match${p.matches===1?'':'es'}${p.ratingCount? ' · avg '+(p.ratingSum/p.ratingCount).toFixed(1)+'★':''}`}</div>
           <div class="lb-bar-wrap"><div class="lb-bar" data-w="${Math.max(6, (p[def.field]/max)*100)}"></div></div>
-          <div class="lb-value">${p[def.field]}</div>
+          <div class="lb-value">${kind==='bestplayer' ? Math.round(p.bpScore) : p[def.field]}</div>
         </div>
-      `).join('')}
+      `;}).join('')}
     </div>
   `}
   `;
@@ -2040,6 +2679,39 @@ function adminLogout(){
   renderTopbarRight();
   if(CURRENT.view==='addmatch') navigate('home');
   showToast('Logged out of admin mode.');
+}
+
+/* =========================================================
+   Federation News — admin "post news" modal
+========================================================= */
+function openNewsModal(){
+  if(!STATE.admin) return;
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>Post Federation News</h3>
+      <p class="hint">Write an announcement for the home page. Choose how long it stays visible — once it expires, the auto-generated recap resumes on its own.</p>
+      <div class="field"><label>Headline</label><input id="news-headline" type="text" placeholder="e.g. Season 3 kicks off next week"></div>
+      <div class="field"><label>Details</label><textarea id="news-body" rows="4" placeholder="Write the announcement…"></textarea></div>
+      <div class="field">
+        <label>Visible for</label>
+        <div style="display:flex; gap:10px;">
+          <input id="news-duration" type="number" min="1" value="7" style="flex:1;">
+          <select id="news-unit" style="flex:1;">
+            <option value="days">Day(s)</option>
+            <option value="months">Month(s)</option>
+          </select>
+        </div>
+      </div>
+      <div id="news-err"></div>
+      <div class="modal-actions">
+        <button class="pill-btn" onclick="closeModal()">Cancel</button>
+        <button class="pill-btn primary" onclick="submitNews()">Post News</button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>{ const el = document.getElementById('news-headline'); if(el) el.focus(); }, 60);
 }
 
 /* =========================================================
