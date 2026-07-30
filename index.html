@@ -481,7 +481,7 @@ table.roster td.num{ font-family:var(--mono); text-align:center; color:var(--mut
 .roster-col-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
 .roster-col-head h3{ font-family:var(--head); font-size:16px; letter-spacing:.5px; text-transform:uppercase; color:var(--turf); }
 .player-row{
-  display:grid; grid-template-columns:1.5fr .62fr .62fr .62fr .55fr .55fr .75fr; gap:7px; align-items:center;
+  display:grid; grid-template-columns:1.4fr .58fr .58fr .58fr .55fr .5fr .5fr .68fr .58fr; gap:6px; align-items:center;
   background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:9px 10px; margin-bottom:8px;
   position:relative;
 }
@@ -619,6 +619,7 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
   color:var(--bg); background:var(--ice); padding:2px 6px; border-radius:5px; vertical-align:1px; margin-left:4px;
 }
 .sub-chip.cs{ background:var(--turf); }
+.sub-chip.og{ background:var(--red); color:#fff; }
 
 /* 6v6-stopped banners */
 .stopped-banner{
@@ -938,6 +939,8 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
    GARDENS FOOTBALL FEDERATION — app state & storage
 ========================================================= */
 const ADMIN_PASSWORD = "992010"; // universal federation password — same for every admin, paired with the person's name
+const MATCH_DURATION_MINUTES = 60; // every fixture: two 30-minute halves
+const MATCH_HALF_MINUTES = 30;
 const FORMAT_INFO = {
   "5v5": { perSide:5, total:10, label:"5-a-side" }
 };
@@ -1298,6 +1301,28 @@ function calculateAge(birthdateStr){
   return { years, months };
 }
 
+/* Market value — a fun, FC-Ultimate-Team-style estimate. Rating drives
+   the base value on an exponential curve (like real transfer markets,
+   where elite ratings are worth disproportionately more), then age
+   scales it: 16 is treated as this league's prime age, and value
+   tapers off the further a player's age sits from that peak in either
+   direction. No birthdate on file just means no age adjustment yet —
+   value is still shown, based on rating alone. */
+function calcMarketValue(rating, ageYears){
+  const base = Math.pow(1.09, rating - 40) * 8000;
+  let ageMultiplier = 1;
+  if(ageYears != null){
+    const diff = Math.abs(ageYears - 16);
+    ageMultiplier = Math.max(0.35, 1 - diff*0.045);
+  }
+  return Math.round(base * ageMultiplier / 500) * 500;
+}
+function formatMarketValue(v){
+  if(v >= 1000000) return '€' + (v/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+  if(v >= 1000) return '€' + (v/1000).toFixed(v%1000===0?0:1) + 'K';
+  return '€' + v;
+}
+
 async function updatePlayerDetail(normName, field, value){
   if(!STATE.admin) return;
   const existing = STATE.playerData[normName] || {};
@@ -1352,7 +1377,17 @@ function cardRating(p){
     + avg*2.1
     - Math.min(8, p.yellow*1.3)
     - Math.min(16, p.red*6);
-  return Math.max(40, Math.min(99, Math.round(score)));
+
+  // Match-duration factor: every fixture runs MATCH_DURATION_MINUTES (60,
+  // two 30-minute halves). A player's average minutes per appearance
+  // versus that full 60 nudges the final rating slightly — a handful of
+  // short cameo appearances shouldn't swing a season rating wildly, but
+  // limited minutes shouldn't be judged identically to a full 60 either.
+  const minutesPlayed = p.minutesPlayed != null ? p.minutesPlayed : (p.matches * MATCH_DURATION_MINUTES);
+  const avgMinutes = p.matches ? minutesPlayed / p.matches : MATCH_DURATION_MINUTES;
+  const workloadFactor = 0.9 + 0.1 * Math.min(1, avgMinutes / MATCH_DURATION_MINUTES);
+
+  return Math.max(40, Math.min(99, Math.round(score * workloadFactor)));
 }
 function ratingTier(r){
   if(r>=85) return { name:'ICON', c1:'#3a2a52', c2:'#0d0916', accent:'#b98cf0', border:'#8a5fd6' };
@@ -1421,21 +1456,26 @@ function refreshPlayersDatalist(){
 ========================================================= */
 function computeAggregates(matchList){
   matchList = matchList || STATE.matches;
-  const players = {}; // normalized -> {name, goals, assists, saves, yellow, red, motm, ratingSum, ratingCount, matches}
+  const players = {}; // normalized -> {name, goals, ownGoals, assists, saves, yellow, red, motm, ratingSum, ratingCount, matches, minutesPlayed}
   function ensure(name){
     const n = normalize(name);
-    if(!players[n]) players[n] = { name: titleCasePreserve(name), goals:0, assists:0, saves:0, yellow:0, red:0, motm:0, ratingSum:0, ratingCount:0, matches:0 };
+    if(!players[n]) players[n] = { name: titleCasePreserve(name), goals:0, ownGoals:0, assists:0, saves:0, yellow:0, red:0, motm:0, ratingSum:0, ratingCount:0, matches:0, minutesPlayed:0 };
     return players[n];
   }
   matchList.forEach(m=>{
     [...m.team1.players, ...m.team2.players].forEach(p=>{
       const rec = ensure(p.name);
       rec.goals += Number(p.goals)||0;
+      rec.ownGoals += Number(p.ownGoals)||0;
       rec.assists += Number(p.assists)||0;
       rec.saves += Number(p.saves)||0;
       rec.yellow += Number(p.yellow)||0;
       rec.red += Number(p.red)||0;
       rec.matches += 1;
+      // MATCH_DURATION_MINUTES = 60 (two 30-minute halves). Older matches
+      // saved before minutes were tracked default to a full 60 so their
+      // rating impact doesn't silently change.
+      rec.minutesPlayed += (p.minutesPlayed!=null && p.minutesPlayed!=='') ? Number(p.minutesPlayed) : MATCH_DURATION_MINUTES;
       if(p.rating!==""&&p.rating!=null){ rec.ratingSum += Number(p.rating)||0; rec.ratingCount += 1; }
     });
     if(m.motm){
@@ -1453,7 +1493,7 @@ function getPlayerHistory(normName){
     [['team1','team2'],['team2','team1']].forEach(([own,opp])=>{
       const found = m[own].players.find(p=>normalize(p.name)===normName);
       if(found){
-        rows.push({ match:m, teamName:m[own].name, oppName:m[opp].name, ownScore:scoreOf(m[own]), oppScore:scoreOf(m[opp]), stats:found });
+        rows.push({ match:m, teamName:m[own].name, oppName:m[opp].name, ownScore:scoreOf(m[own], m[opp]), oppScore:scoreOf(m[opp], m[own]), stats:found });
       }
     });
   });
@@ -1494,7 +1534,7 @@ function getActiveNews(){
 const NEWS_CORRESPONDENT = { name:'Marco Delvecchio', role:'GFF Chief Correspondent — No Filter, No Mercy', initials:'MD' };
 
 function generateMatchRecap(m){
-  const s1 = scoreOf(m.team1), s2 = scoreOf(m.team2);
+  const s1 = scoreOf(m.team1, m.team2), s2 = scoreOf(m.team2, m.team1);
   const seed = hashStr(m.id);
   const draw = s1===s2;
   const winnerTeam = s1>s2 ? m.team1 : m.team2;
@@ -1637,7 +1677,7 @@ function generateHistoricalHighlight(){
   });
 
   const totalMatches = STATE.matches.length;
-  const totalGoals = STATE.matches.reduce((s,m)=> s + scoreOf(m.team1) + scoreOf(m.team2), 0);
+  const totalGoals = STATE.matches.reduce((s,m)=> s + scoreOf(m.team1, m.team2) + scoreOf(m.team2, m.team1), 0);
   candidates.push(totalMatches>0 ? {
     headline: `${totalMatches} matches in the books, and the standards still aren't improving`,
     teaser: `The archive now holds ${totalMatches} official fixture${totalMatches===1?'':'s'} and ${totalGoals} recorded goal${totalGoals===1?'':'s'} — for better or worse.`,
@@ -1712,7 +1752,7 @@ function getUnloggedMatches(){
 
 function generateWeeklyReport(weekMatches, weekNumber, topThree, highestRated){
   const seed = hashStr('week-'+weekNumber+'-'+weekMatches.length);
-  const totalGoals = weekMatches.reduce((s,m)=>s+scoreOf(m.team1)+scoreOf(m.team2),0);
+  const totalGoals = weekMatches.reduce((s,m)=>s+scoreOf(m.team1,m.team2)+scoreOf(m.team2,m.team1),0);
   const headline = pick([
     `Week ${weekNumber} in the books — and the standards did not improve`,
     `Week ${weekNumber} wrapped: some earned it, most just got away with it`,
@@ -2240,7 +2280,7 @@ function openNewsDetail(key){
 
 function renderHome(){
   const totalMatches = STATE.matches.length;
-  const totalGoals = STATE.matches.reduce((s,m)=> s + scoreOf(m.team1) + scoreOf(m.team2), 0);
+  const totalGoals = STATE.matches.reduce((s,m)=> s + scoreOf(m.team1, m.team2) + scoreOf(m.team2, m.team1), 0);
   const registrySize = getAllPlayerNames().size;
   return `
   <section class="hero">
@@ -2542,12 +2582,17 @@ function renderRecords(fmt){
   `;
 }
 
-function scoreOf(team){ return team.players.reduce((s,p)=>s+(+p.goals||0),0) + (+team.extraGoals||0); }
+function scoreOf(team, oppTeam){
+  const own = team.players.reduce((s,p)=>s+(+p.goals||0),0) + (+team.extraGoals||0);
+  const conceded = oppTeam ? oppTeam.players.reduce((s,p)=>s+(+p.ownGoals||0),0) : 0;
+  return own + conceded;
+}
 
 function renderScorecard(m){
-  const s1 = scoreOf(m.team1), s2 = scoreOf(m.team2);
+  const s1 = scoreOf(m.team1, m.team2), s2 = scoreOf(m.team2, m.team1);
   const motm = m.motm ? esc(m.motm) : '—';
   const extraTotal = (+m.team1.extraGoals||0) + (+m.team2.extraGoals||0);
+  const ogTotal = [...m.team1.players, ...m.team2.players].reduce((s,p)=>s+(+p.ownGoals||0),0);
   return `
   <div class="scorecard" onclick="navigate('match','${m.id}')">
     <div class="sc-top"><span class="sc-date">${formatDate(m.date)}</span><span class="sc-format">${m.format.toUpperCase()}</span></div>
@@ -2556,7 +2601,7 @@ function renderScorecard(m){
       <div class="sc-vs sc-perf">VS</div>
       <div class="sc-team"><div class="tname">${esc(m.team2.name)}</div><div class="sc-score ${s2>s1?'win':''}">${s2}</div></div>
     </div>
-    <div class="sc-foot"><span>MOTM</span><b>${motm}</b>${extraTotal>0 ? `<span class="eg-note-chip">⚽ +${extraTotal} unregistered</span>` : ''}</div>
+    <div class="sc-foot"><span>MOTM</span><b>${motm}</b>${extraTotal>0 ? `<span class="eg-note-chip">⚽ +${extraTotal} unregistered</span>` : ''}${ogTotal>0 ? `<span class="eg-note-chip" style="color:var(--red);">⚠ ${ogTotal} own goal${ogTotal===1?'':'s'}</span>` : ''}</div>
   </div>`;
 }
 
@@ -2565,7 +2610,7 @@ function renderMatchDetail(id){
   if(!m){
     return `<div class="empty-state"><div class="ic">❓</div><b>Match not found</b>It may have been removed.<div style="margin-top:16px;"><button class="pill-btn" onclick="navigate('home')">Back home</button></div></div>`;
   }
-  const s1 = scoreOf(m.team1), s2 = scoreOf(m.team2);
+  const s1 = scoreOf(m.team1, m.team2), s2 = scoreOf(m.team2, m.team1);
   const eg1 = +m.team1.extraGoals||0, eg2 = +m.team2.extraGoals||0;
   return `
   <div class="crumbs"><span onclick="navigate('home')">Home</span> / <span onclick="navigate('records','${m.format}')">${m.format.toUpperCase()} Records</span> / Match Detail</div>
@@ -2596,7 +2641,7 @@ function renderMatchDetail(id){
           <tbody>
             ${team.players.map(p=>`
               <tr onclick="navigate('player','${esc(normalize(p.name))}')" style="cursor:pointer;">
-                <td class="pname">${esc(p.name)}${p.isSub ? ' <span class="sub-chip">SUB</span>' : ''}${team.cleanSheet && Array.isArray(team.cleanSheetPlayers) && team.cleanSheetPlayers.some(n=>normalize(n)===normalize(p.name)) ? ' <span class="sub-chip cs">CS</span>' : ''}</td>
+                <td class="pname">${esc(p.name)}${p.isSub ? ' <span class="sub-chip">SUB</span>' : ''}${(+p.ownGoals>0) ? ` <span class="sub-chip og" title="Own goal">OG×${p.ownGoals}</span>` : ''}${team.cleanSheet && Array.isArray(team.cleanSheetPlayers) && team.cleanSheetPlayers.some(n=>normalize(n)===normalize(p.name)) ? ' <span class="sub-chip cs">CS</span>' : ''}</td>
                 <td class="num">${p.goals||0}</td>
                 <td class="num">${p.assists||0}</td>
                 <td class="num">${p.saves||0}</td>
@@ -2693,7 +2738,7 @@ function renderPlayerProfile(normName){
     <div class="pp-stat-card"><div class="v">${avgRating}</div><div class="l">Avg Rating</div></div>
   </div>
 
-  ${renderPlayerDetailsSection(normName, record)}
+  ${renderPlayerDetailsSection(normName, record, p)}
 
   ${renderTrophySection(normName)}
 
@@ -2715,8 +2760,19 @@ function renderPlayerProfile(normName){
   `;
 }
 
+/* One quiet, generic line — deliberately minimal, no deep breakdown —
+   hinting what still moves this player's rating up or down. */
+function ratingFormTip(p){
+  const openLevers = [];
+  if(p.goals*1.8 < 20) openLevers.push('a goal');
+  if(p.assists*1.6 < 12) openLevers.push('an assist');
+  if(p.motm*3 < 9) openLevers.push('MOTM');
+  const upText = openLevers.length ? openLevers.slice(0,2).join(' or ') : 'a big personal rating';
+  return `📈 Next game: ${upText} nudges this up. A card or a poor rating pulls it down.`;
+}
+
 /* ---------- Player profile: details / trophies / season highlights ---------- */
-function renderPlayerDetailsSection(normName, record){
+function renderPlayerDetailsSection(normName, record, p){
   const pd = getPlayerData(normName);
   const age = calculateAge(pd.birthdate);
   const ageStr = age ? `${age.years} yr${age.years===1?'':'s'} ${age.months} mo` : '—';
@@ -2748,8 +2804,13 @@ function renderPlayerDetailsSection(normName, record){
       <div class="pdetail-l">Record (${winPct}% win rate)</div>
       <div class="pdetail-v accent">${record.wins}W ${record.draws}D ${record.losses}L</div>
     </div>
+    <div class="pdetail-card">
+      <div class="pdetail-l">Market Value</div>
+      <div class="pdetail-v accent">${formatMarketValue(calcMarketValue(cardRating(p), age?age.years:null))}</div>
+    </div>
   </div>
-  ${STATE.admin ? `<div class="lb-meta" style="margin:-14px 0 30px; color:var(--muted-dim);">Only admins can set birthdate, height &amp; weight. These never appear in match registration — only here. Win/draw/loss is calculated automatically from match history.</div>` : ''}
+  <div class="lb-meta" style="margin:-10px 0 6px; color:var(--muted-dim); font-size:10.5px;">${ratingFormTip(p)}</div>
+  ${STATE.admin ? `<div class="lb-meta" style="margin:2px 0 30px; color:var(--muted-dim);">Only admins can set birthdate, height &amp; weight. These never appear in match registration — only here. Win/draw/loss is calculated automatically from match history. Market value is an estimate based on rating and age — 16 is treated as this league's prime age.</div>` : ''}
   `;
 }
 
@@ -2976,6 +3037,24 @@ function renderLicense(){
 function renderPatchNotes(){
   const entries = [
     {
+      version:'v2.1',
+      title:'Market Value & Match-Minutes Rating',
+      items:[
+        'Added a Market Value estimate to every player\u2019s bio — driven by their FC Rating, with 16 treated as this league\u2019s prime age. Value tapers off the further a player\u2019s age sits from 16 in either direction.',
+        'Match registration now records minutes played per player (defaults to a full 60 for starters, 20 for substitutes) — every fixture is fixed at 60 minutes, two 30-minute halves.',
+        'FC Rating now factors in average minutes played: a handful of short cameo appearances no longer get judged identically to a full 60-minute shift. The effect is intentionally gentle so it can\u2019t swing a season rating on its own.'
+      ]
+    },
+    {
+      version:'v2.0',
+      title:'Own Goals & a Quiet Rating Hint',
+      items:[
+        'Added an Own Goal field to match registration — it adds to the opposing team\u2019s score but is never counted as a goal for the player who scored it, so it can\u2019t inflate their rating or top-scorer stats.',
+        'Own goals show up as a small "OG" marker on the match detail roster and a quiet warning chip on the match scorecard.',
+        'Player profiles now show one small, low-key line hinting what still moves that player\u2019s rating up or down before their next game — deliberately minimal, no deep breakdown.'
+      ]
+    },
+    {
       version:'v1.9',
       title:'Cleaner Cards, Rating Badges & Award Privacy',
       items:[
@@ -3159,11 +3238,13 @@ function renderAddMatch(fmt){
     <div class="player-row" data-team="${team}" data-idx="${idx}">
       <input class="pname" data-role="name" type="text" placeholder="Player ${idx+1} name" list="playersList" oninput="onNameInput(this)">
       <div><span class="mini-lbl">Goals</span><input data-role="goals" type="number" min="0" value="0"></div>
+      <div><span class="mini-lbl">Own Goal</span><input data-role="own-goals" type="number" min="0" value="0" title="Counts toward the opposing team's score — never counted as a goal for this player"></div>
       <div><span class="mini-lbl">Assists</span><input data-role="assists" type="number" min="0" value="0"></div>
       <div><span class="mini-lbl">Saves</span><input data-role="saves" type="number" min="0" value="0"></div>
       <div><span class="mini-lbl">Yellow</span><input data-role="yellow" type="number" min="0" max="2" value="0"></div>
       <div><span class="mini-lbl">Red</span><input data-role="red" type="number" min="0" max="1" value="0"></div>
       <div><span class="mini-lbl">Rating</span><input data-role="rating" type="number" min="0" max="10" step="0.1" placeholder="0-10"></div>
+      <div><span class="mini-lbl">Mins</span><input data-role="minutes" type="number" min="0" max="60" value="60" title="Minutes played out of the full 60-minute match — adjust if subbed off"></div>
     </div>
     <div class="suggest-slot" data-suggest-for="${team}-${idx}"></div>
     `;
@@ -3214,7 +3295,7 @@ function renderAddMatch(fmt){
 
   return `
   <div class="crumbs"><span onclick="navigate('home')">Home</span> / <span onclick="navigate('records','${fmt}')">${fmt.toUpperCase()} Records</span> / New Match</div>
-  <div class="page-head"><div><h1>Log a ${fmt.toUpperCase()} Match</h1><div class="desc">${info.total} players total — ${info.perSide} per side. Team names are fixed as Team 1 and Team 2 for consistency.</div></div></div>
+  <div class="page-head"><div><h1>Log a ${fmt.toUpperCase()} Match</h1><div class="desc">${info.total} players total — ${info.perSide} per side. Every match runs 60 minutes (two 30-minute halves) — adjust the "Mins" field per player if they were subbed off, or came off the bench for fewer than 60.</div></div></div>
 
   <div class="form-shell">
     <div class="form-toprow">
@@ -3301,11 +3382,13 @@ function subPlayerRowHTML(team, idx){
     <div class="player-row" data-team="${team}" data-sub="true" data-idx="sub-${idx}">
       <input class="pname" data-role="name" type="text" placeholder="Substitute ${idx+1} name" list="playersList" oninput="onNameInput(this)">
       <div><span class="mini-lbl">Goals</span><input data-role="goals" type="number" min="0" value="0"></div>
+      <div><span class="mini-lbl">Own Goal</span><input data-role="own-goals" type="number" min="0" value="0" title="Counts toward the opposing team's score — never counted as a goal for this player"></div>
       <div><span class="mini-lbl">Assists</span><input data-role="assists" type="number" min="0" value="0"></div>
       <div><span class="mini-lbl">Saves</span><input data-role="saves" type="number" min="0" value="0"></div>
       <div><span class="mini-lbl">Yellow</span><input data-role="yellow" type="number" min="0" max="2" value="0"></div>
       <div><span class="mini-lbl">Red</span><input data-role="red" type="number" min="0" max="1" value="0"></div>
       <div><span class="mini-lbl">Rating</span><input data-role="rating" type="number" min="0" max="10" step="0.1" placeholder="0-10"></div>
+      <div><span class="mini-lbl">Mins</span><input data-role="minutes" type="number" min="0" max="60" value="20" title="Minutes played out of the full 60-minute match"></div>
     </div>
     <div class="suggest-slot" data-suggest-for="${team}-sub-${idx}"></div>
   `;
@@ -3345,11 +3428,13 @@ function collectSubPlayers(team, count){
     players.push({
       name,
       goals: Number(row.querySelector('input[data-role="goals"]').value)||0,
+      ownGoals: Number(row.querySelector('input[data-role="own-goals"]').value)||0,
       assists: Number(row.querySelector('input[data-role="assists"]').value)||0,
       saves: Number(row.querySelector('input[data-role="saves"]').value)||0,
       yellow: Number(row.querySelector('input[data-role="yellow"]').value)||0,
       red: Number(row.querySelector('input[data-role="red"]').value)||0,
       rating: row.querySelector('input[data-role="rating"]').value === '' ? null : Number(row.querySelector('input[data-role="rating"]').value),
+      minutesPlayed: Number(row.querySelector('input[data-role="minutes"]').value)||0,
       isSub: true
     });
   }
@@ -3390,8 +3475,10 @@ function shuffleTeams(fmt){
   rows.forEach((r,i)=>{
     const input = r.querySelector('input[data-role="name"]');
     input.value = names[i] || '';
-    ['goals','assists','saves','yellow','red'].forEach(role=>{ r.querySelector(`input[data-role="${role}"]`).value = 0; });
+    ['goals','own-goals','assists','saves','yellow','red'].forEach(role=>{ r.querySelector(`input[data-role="${role}"]`).value = 0; });
     r.querySelector('input[data-role="rating"]').value = '';
+    const minutesInput = r.querySelector('input[data-role="minutes"]');
+    if(minutesInput) minutesInput.value = 60;
     onNameInput(input);
   });
   showToast('Teams randomized. Stats reset for the new lineup.');
@@ -3406,11 +3493,13 @@ function collectTeamPlayers(team, count){
     players.push({
       name,
       goals: Number(row.querySelector('input[data-role="goals"]').value)||0,
+      ownGoals: Number(row.querySelector('input[data-role="own-goals"]').value)||0,
       assists: Number(row.querySelector('input[data-role="assists"]').value)||0,
       saves: Number(row.querySelector('input[data-role="saves"]').value)||0,
       yellow: Number(row.querySelector('input[data-role="yellow"]').value)||0,
       red: Number(row.querySelector('input[data-role="red"]').value)||0,
       rating: row.querySelector('input[data-role="rating"]').value === '' ? null : Number(row.querySelector('input[data-role="rating"]').value),
+      minutesPlayed: Number(row.querySelector('input[data-role="minutes"]').value)||0,
     });
   }
   return players;
