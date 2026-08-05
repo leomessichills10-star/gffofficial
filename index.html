@@ -1368,26 +1368,25 @@ function getSeasonHighlights(normName){
    Football card rating (community "FC rating", 40-99 scale)
 ========================================================= */
 function cardRating(p){
-  const avg = p.ratingCount ? (p.ratingSum/p.ratingCount) : 5.5;
-  let score = 42
-    + Math.min(20, p.goals*1.8)
-    + Math.min(12, p.assists*1.6)
-    + Math.min(10, p.saves*0.55)
-    + Math.min(9, p.motm*3)
-    + avg*2.1
-    - Math.min(8, p.yellow*1.3)
-    - Math.min(16, p.red*6);
+  const avg = p.ratingCount ? (p.ratingSum/p.ratingCount) : 5.0;
+  let score = 30
+    + Math.min(15, (p.goals || 0) * 0.4)
+    + Math.min(10, (p.assists || 0) * 0.3)
+    + Math.min(8, (p.saves || 0) * 0.2)
+    + Math.min(10, (p.motm || 0) * 1.0)
+    + (avg * 4.5)
+    - ((p.yellow || 0) * 5.0)
+    - ((p.red || 0) * 25.0);
 
-  // Match-duration factor: every fixture runs MATCH_DURATION_MINUTES (60,
-  // two 30-minute halves). A player's average minutes per appearance
-  // versus that full 60 nudges the final rating slightly — a handful of
-  // short cameo appearances shouldn't swing a season rating wildly, but
-  // limited minutes shouldn't be judged identically to a full 60 either.
-  const minutesPlayed = p.minutesPlayed != null ? p.minutesPlayed : (p.matches * MATCH_DURATION_MINUTES);
-  const avgMinutes = p.matches ? minutesPlayed / p.matches : MATCH_DURATION_MINUTES;
-  const workloadFactor = 0.9 + 0.1 * Math.min(1, avgMinutes / MATCH_DURATION_MINUTES);
+  const mDur = typeof MATCH_DURATION_MINUTES !== 'undefined' ? MATCH_DURATION_MINUTES : 60;
+  const minutesPlayed = p.minutesPlayed != null ? p.minutesPlayed : ((p.matches || 0) * mDur);
+  const avgMinutes = p.matches ? minutesPlayed / p.matches : mDur;
+  const workloadFactor = 0.8 + 0.2 * Math.min(1, avgMinutes / mDur);
 
-  return Math.max(40, Math.min(99, Math.round(score * workloadFactor)));
+  let wf = score * workloadFactor;
+  let finalRating = wf <= 65 ? wf : 65 + 8.5 * Math.log1p((wf - 65) / 4.0);
+
+  return Math.max(40, Math.min(99, Math.round(finalRating)));
 }
 function ratingTier(r){
   if(r>=85) return { name:'ICON', c1:'#3a2a52', c2:'#0d0916', accent:'#b98cf0', border:'#8a5fd6' };
@@ -1410,13 +1409,14 @@ function ratingBadge(rating){
    isn't the same as being the Federation's best player over a full,
    grueling season. Instead this rewards three things together:
      - presence: appearances made (being consistently available)
-     - direct impact: goals + assists, weighted toward goals
-     - sustained quality: average match rating across every appearance,
-       which naturally favours consistent performers over one-hit wonders
+     - direct impact: equal and very low contribution from attack (goals/assists) and saves, preventing stat farming by attackers
+     - sustained quality: heavily dominated by average match rating across every appearance to properly balance midfielders, defenders, and goalkeepers
 */
 function bestPlayerScore(p){
   const avgRating = p.ratingCount ? (p.ratingSum/p.ratingCount) : 0;
-  return (p.matches*1) + (p.goals*2) + (p.assists*1.5) + (avgRating*3);
+  const attackContrib = ((p.goals || 0) + (p.assists || 0)) * 0.1;
+  const saveContrib = (p.saves || 0) * 0.1;
+  return (p.matches * 1) + attackContrib + saveContrib + (avgRating * 15.0);
 }
 
 function getAllPlayerNames(){
@@ -1502,7 +1502,6 @@ function getPlayerHistory(normName){
   const seen = new Set();
   return rows.filter(r=>{ if(seen.has(r.match.id)) return false; seen.add(r.match.id); return true; });
 }
-
 /* =========================================================
    Federation News — a home-page news feed.
    When the admin has an active (non-expired) announcement, it's
