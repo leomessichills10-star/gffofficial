@@ -835,6 +835,9 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
 .news-modal-body p:last-child{ margin-bottom:0; }
 .news-modal .modal-actions .pill-btn{ background:var(--paper-ink); color:var(--paper); border:none; }
 
+/* Position select dropdowns grouped by category */
+select optgroup{ font-family:var(--mono); font-style:normal; color:var(--muted); }
+
 /* utility */
 .hidden{ display:none !important; }
 .btn-danger-outline{ border-color:rgba(229,72,77,.4); color:var(--red); }
@@ -949,7 +952,7 @@ let STATE = {
   matches: [],
   admin: null,       // {name}
   loaded: false,
-  positions: {},      // normalized player name -> position code (GK/DEF/MID/FWD)
+  positions: {},      // normalized player name -> position code (GK/CB/LB/RB/LWB/RWB/CDM/CM/CAM/LM/RM/LW/RW/CF/ST)
   loginHistory: [],    // [{name, ts}]
   playerData: {},      // normalized player name -> {birthdate, height, weight, trophies:{...}}
   news: [],            // admin-posted announcements + weekly reports: [{id, headline, body|teaser/story, createdAt, expiresAt, postedBy, kind}]
@@ -1240,14 +1243,43 @@ function trophySVG(cls){
 }
 
 /* =========================================================
-   Player positions
+   Player positions — full FC-style position set, grouped into
+   four broad categories (GK / DEF / MID / FWD) so systems like
+   Team of the Week — which pick "a defender" or "a midfielder"
+   rather than a specific slot — still work unchanged.
 ========================================================= */
+const POSITION_GROUPS = [
+  { code:'GK',  label:'Goalkeeper' },
+  { code:'DEF', label:'Defenders' },
+  { code:'MID', label:'Midfielders' },
+  { code:'FWD', label:'Forwards' }
+];
 const POSITIONS = {
-  GK:{ label:'Goalkeeper', accent:'var(--amber)' },
-  DEF:{ label:'Defender', accent:'var(--blue)' },
-  MID:{ label:'Midfielder', accent:'var(--turf)' },
-  FWD:{ label:'Forward', accent:'var(--crimson)' }
+  GK:  { label:'Goalkeeper',            category:'GK',  accent:'var(--amber)' },
+  CB:  { label:'Centre Back',           category:'DEF', accent:'var(--blue)' },
+  LB:  { label:'Left Back',             category:'DEF', accent:'var(--blue)' },
+  RB:  { label:'Right Back',            category:'DEF', accent:'var(--blue)' },
+  LWB: { label:'Left Wing Back',        category:'DEF', accent:'var(--blue)' },
+  RWB: { label:'Right Wing Back',       category:'DEF', accent:'var(--blue)' },
+  CDM: { label:'Defensive Midfielder',  category:'MID', accent:'var(--turf)' },
+  CM:  { label:'Central Midfielder',    category:'MID', accent:'var(--turf)' },
+  CAM: { label:'Attacking Midfielder',  category:'MID', accent:'var(--turf)' },
+  LM:  { label:'Left Midfielder',       category:'MID', accent:'var(--turf)' },
+  RM:  { label:'Right Midfielder',      category:'MID', accent:'var(--turf)' },
+  LW:  { label:'Left Winger',           category:'FWD', accent:'var(--crimson)' },
+  RW:  { label:'Right Winger',          category:'FWD', accent:'var(--crimson)' },
+  CF:  { label:'Centre Forward',        category:'FWD', accent:'var(--crimson)' },
+  ST:  { label:'Striker',               category:'FWD', accent:'var(--crimson)' }
 };
+/* Builds a <select>-ready set of <optgroup>s, positions grouped under
+   Goalkeeper / Defenders / Midfielders / Forwards, so a 15-option list
+   stays easy to scan instead of one long flat dropdown. */
+function positionOptionsHTML(selected){
+  return POSITION_GROUPS.map(g=>{
+    const codes = Object.keys(POSITIONS).filter(c=>POSITIONS[c].category===g.code);
+    return `<optgroup label="${g.label}">${codes.map(code=>`<option value="${code}" ${selected===code?'selected':''}>${code} · ${POSITIONS[code].label}</option>`).join('')}</optgroup>`;
+  }).join('');
+}
 function getPlayerPosition(normName){
   return STATE.positions[normName] || '';
 }
@@ -1256,7 +1288,7 @@ async function setPlayerPosition(normName, select){
   const pos = select.value;
   if(pos) STATE.positions[normName] = pos; else delete STATE.positions[normName];
   await savePositions();
-  showToast(pos ? `Position set to ${POSITIONS[pos].label}.` : 'Position cleared.');
+  showToast(pos ? `Position set to ${POSITIONS[pos].label} (${pos}).` : 'Position cleared.');
 }
 
 /* =========================================================
@@ -1858,11 +1890,12 @@ async function submitEndWeek(){
    Computed once, forever, at the moment a week is ended — from
    that week's matches only. Picks the best GK, best defender,
    two best midfielders and a best forward using each player's
-   assigned position and their performance in that week alone.
-   The TOTW rating shown on these cards is a separate, boosted
-   "special edition" number for display purposes only — it never
-   touches or overwrites a player's real FC Rating anywhere else
-   in the archive.
+   assigned position *category* (a specific position like ST or
+   CDM still maps to FWD/MID/DEF underneath) and their performance
+   in that week alone. The TOTW rating shown on these cards is a
+   separate, boosted "special edition" number for display purposes
+   only — it never touches or overwrites a player's real FC Rating
+   anywhere else in the archive.
 ========================================================= */
 const TOTW_FORMATION = [
   { code:'FWD', label:'Forward',    count:1 },
@@ -1876,15 +1909,17 @@ function computeTOTW(weekAgg){
     .filter(p=>p.matches>0)
     .map(p=>{
       const norm = normalize(p.name);
-      return { ...p, norm, position:getPlayerPosition(norm), weekRating:cardRating(p) };
+      const posCode = getPlayerPosition(norm);
+      const category = posCode && POSITIONS[posCode] ? POSITIONS[posCode].category : null;
+      return { ...p, norm, position:posCode, category, weekRating:cardRating(p) };
     })
-    .filter(p=>p.position); // only players with an assigned position can fill a TOTW slot
+    .filter(p=>p.category); // only players with an assigned position can fill a TOTW slot
 
   const picks = [];
   const used = new Set();
   TOTW_FORMATION.forEach(slot=>{
     const pool = eligible
-      .filter(p=>p.position===slot.code && !used.has(p.norm))
+      .filter(p=>p.category===slot.code && !used.has(p.norm))
       .sort((a,b)=> b.weekRating-a.weekRating || (b.goals+b.assists)-(a.goals+a.assists) || b.matches-a.matches);
     for(let i=0;i<slot.count;i++){
       const chosen = pool[i];
@@ -1892,7 +1927,8 @@ function computeTOTW(weekAgg){
       used.add(chosen.norm);
       picks.push({
         name: chosen.name,
-        position: slot.code,
+        position: chosen.position,
+        category: chosen.category,
         weekRating: chosen.weekRating,
         totwRating: Math.min(99, chosen.weekRating + 8),
         goals: chosen.goals,
@@ -1944,12 +1980,12 @@ function renderTOTW(param){
 
 function renderTOTWCard(p, weekNumber){
   const norm = normalize(p.name);
-  const posLabel = (TOTW_FORMATION.find(f=>f.code===p.position)||{label:p.position}).label;
+  const posDisplay = p.position ? p.position : (TOTW_FORMATION.find(f=>f.code===p.category)||{label:p.category}).label;
   return `
   <div class="totw-card" onclick="navigate('player','${esc(norm)}')">
     <div class="totw-top">
       <div class="totw-rating">${p.totwRating}${ratingBadge(p.totwRating)}<span class="lbl">TOTW</span></div>
-      <div class="totw-position">${esc(posLabel)}</div>
+      <div class="totw-position">${esc(posDisplay)}</div>
     </div>
     <div class="totw-name">${esc(p.name)}</div>
     <div class="totw-week-tag">Week ${weekNumber} Special Edition</div>
@@ -1959,19 +1995,19 @@ function renderTOTWCard(p, weekNumber){
       <div class="totw-stat"><b>${p.saves}</b>Saves</div>
       <div class="totw-stat"><b>${p.avgRating!=null?p.avgRating:'—'}</b>Avg</div>
     </div>
-    <div class="totw-insight">${totwInsight(p, posLabel)}</div>
+    <div class="totw-insight">${totwInsight(p, posDisplay)}</div>
   </div>
   `;
 }
 
 function totwInsight(p, posLabel){
   if(p.motm>0) return `⭐ Man of the Match this week — the standout performer on the pitch.`;
-  if(p.position==='GK' && p.saves>0) return `🧤 ${p.saves} save${p.saves===1?'':'s'} between the posts this week.`;
+  if(p.category==='GK' && p.saves>0) return `🧤 ${p.saves} save${p.saves===1?'':'s'} between the posts this week.`;
   if(p.goals>=3) return `⚽ Hat-trick form this week — nobody could live with it.`;
   if(p.goals>0 && p.assists>0) return `⚡ A direct hand in ${p.goals+p.assists} goal${p.goals+p.assists===1?'':'s'} this week.`;
   if(p.goals>0) return `⚽ ${p.goals} goal${p.goals===1?'':'s'} this week alone.`;
   if(p.assists>0) return `🎯 ${p.assists} assist${p.assists===1?'':'s'} this week alone.`;
-  return `📈 The best week-rated ${posLabel.toLowerCase()} on file this week.`;
+  return `📈 The best week-rated ${String(posLabel).toLowerCase()} on file this week.`;
 }
 
 /* =========================================================
@@ -2054,7 +2090,7 @@ async function submitPOTW(weekNumber){
 }
 
 function renderPOTWCard(potw, weekNumber){
-  const posLabel = potw.position ? (TOTW_FORMATION.find(f=>f.code===potw.position)||{label:potw.position}).label : 'Unassigned';
+  const posLabel = potw.position ? potw.position : 'Unassigned';
   return `
   <div class="totw-card potw-card" onclick="navigate('player','${esc(normalize(potw.name))}')">
     <div class="potw-ribbon">🗳️ Player of the Week</div>
@@ -2512,7 +2548,7 @@ function renderFootballCard(p){
     <div class="pc-position-edit" onclick="event.stopPropagation()">
       <select onchange="setPlayerPosition('${esc(norm)}', this)">
         <option value="">Set position…</option>
-        ${Object.keys(POSITIONS).map(code=>`<option value="${code}" ${pos===code?'selected':''}>${code} · ${POSITIONS[code].label}</option>`).join('')}
+        ${positionOptionsHTML(pos)}
       </select>
     </div>` : '';
   return `
@@ -2712,11 +2748,11 @@ function renderPlayerProfile(normName){
     <div class="pp-avatar" style="border-color:${tier.border};color:${tier.accent};">${esc(p.name.trim().charAt(0).toUpperCase() || '?')}</div>
     <div style="flex:1;">
       <div class="pp-name">${esc(p.name)}</div>
-      <div class="pp-tag">Registered player · Gardens Football Federation · Est. 2024${pos?` · ${POSITIONS[pos].label}`:''}</div>
-      ${STATE.admin ? `<div style="margin-top:10px; max-width:220px;" onclick="event.stopPropagation()">
+      <div class="pp-tag">Registered player · Gardens Football Federation · Est. 2024${pos?` · ${POSITIONS[pos]?POSITIONS[pos].label:pos} (${pos})`:''}</div>
+      ${STATE.admin ? `<div style="margin-top:10px; max-width:260px;" onclick="event.stopPropagation()">
         <select class="pc-position-edit-inline" onchange="setPlayerPosition('${esc(normName)}', this).then(()=>navigate('player','${esc(normName)}'))" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--chalk);font-family:var(--mono);font-size:10.5px;padding:8px 10px;border-radius:8px;outline:none;text-transform:uppercase;">
           <option value="">Set position…</option>
-          ${Object.keys(POSITIONS).map(code=>`<option value="${code}" ${pos===code?'selected':''}>${code} · ${POSITIONS[code].label}</option>`).join('')}
+          ${positionOptionsHTML(pos)}
         </select>
       </div>` : ''}
     </div>
@@ -2909,7 +2945,7 @@ function renderStats(kind){
     <div class="lb-list">
       ${agg.map((p,i)=>{
         const posCode = kind==='bestplayer' ? getPlayerPosition(normalize(p.name)) : null;
-        const posLabel = posCode ? POSITIONS[posCode].label : 'Position not set';
+        const posLabel = posCode ? `${posCode} · ${POSITIONS[posCode]?POSITIONS[posCode].label:''}` : 'Position not set';
         return `
         <div class="lb-row ${def.cls} ${i===0?'top1':i===1?'top2':i===2?'top3':''}">
           <div class="lb-rank">${i+1}</div>
@@ -3035,6 +3071,15 @@ function renderLicense(){
    below the certificate — there is no separate nav entry for it. */
 function renderPatchNotes(){
   const entries = [
+    {
+      version:'v2.2',
+      title:'Full FC-Style Position System',
+      items:[
+        'Expanded player positions from four broad roles to fifteen specific ones: GK, CB, LB, RB, LWB, RWB, CDM, CM, CAM, LM, RM, LW, RW, CF, ST.',
+        'Position pickers now group choices under Goalkeeper / Defenders / Midfielders / Forwards so the longer list stays easy to scan.',
+        'Team of the Week still works exactly as before — it picks by broad category underneath the specific position, so a CDM or CB or a ST can all still fill their category\u2019s TOTW slot.'
+      ]
+    },
     {
       version:'v2.1',
       title:'Market Value & Match-Minutes Rating',
