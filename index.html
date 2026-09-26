@@ -1445,11 +1445,25 @@ function ratingBadge(rating){
      - sustained quality: heavily dominated by average match rating across every appearance to properly balance midfielders, defenders, and goalkeepers
 */
 function bestPlayerScore(p){
-  const avgRating = p.ratingCount ? (p.ratingSum/p.ratingCount) : 0;
-  const attackContrib = ((p.goals || 0) + (p.assists || 0)) * 0.1;
-  const saveContrib = (p.saves || 0) * 0.1;
-  return (p.matches * 1) + attackContrib + saveContrib + (avgRating * 15.0);
-}
+  const avgRating = p.ratingCount ? (p.ratingSum / p.ratingCount) : 0;
+
+const attackContrib = ((p.goals || 0) + (p.assists || 0)) * 0.005;
+const saveContrib = (p.saves || 0) * 0.005;
+
+// Target matches needed for 100% full rating boost multiplier
+const TARGET_MATCHES = 20; 
+
+// Power curve penalty: (10 / 20)^1.5 = ~0.35 (Only 35% rating weight for 10 matches)
+// (19 / 20)^1.5 = ~0.92 (92% rating weight for 19 matches)
+const matchWeight = Math.pow(Math.min(1, (p.matches || 0) / TARGET_MATCHES), 1.5);
+
+// The match rating boost is scaled exponentially by matches played
+const ratingContrib = avgRating * 25.0 * matchWeight;
+
+// Minimal base match points
+const matchContrib = (p.matches || 0) * 0.01; 
+
+return matchContrib + attackContrib + saveContrib + ratingContrib;}
 
 function getAllPlayerNames(){
   const set = new Map(); // normalized -> canonical display name
@@ -2106,7 +2120,7 @@ function renderPOTWCard(potw, weekNumber){
       <div class="totw-stat"><b>${potw.saves}</b>Saves</div>
       <div class="totw-stat"><b>${potw.avgRating!=null?potw.avgRating:'—'}</b>Avg</div>
     </div>
-    <div class="totw-insight">👑 Voted the best player of Week ${weekNumber} by the community.</div>
+    <div class="totw-insight">👑 The best player of Week ${weekNumber}</div>
   </div>
   `;
 }
