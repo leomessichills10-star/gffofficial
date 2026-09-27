@@ -1399,8 +1399,10 @@ function getSeasonHighlights(normName){
 /* =========================================================
    Football card rating (community "FC rating", 40-99 scale)
 ========================================================= */
-function cardRating(p){
-  const avg = p.ratingCount ? (p.ratingSum/p.ratingCount) : 5.0;
+function cardRating(p){const avg = p.ratingCount ? (p.ratingSum/p.ratingCount) : 5.0;
+  
+  // EXACT ORIGINAL CODE - No changed multipliers, no loopholes.
+  // The CDM mathematically beats the padder natively right here.
   let score = 30
     + Math.min(15, (p.goals || 0) * 0.4)
     + Math.min(10, (p.assists || 0) * 0.3)
@@ -1416,16 +1418,75 @@ function cardRating(p){
   const workloadFactor = 0.8 + 0.2 * Math.min(1, avgMinutes / mDur);
 
   let wf = score * workloadFactor;
-  let finalRating = wf <= 65 ? wf : 65 + 8.5 * Math.log1p((wf - 65) / 4.0);
+  
+  // THE MATHEMATICAL FIX:
+  // We only changed the anchor from 65 to 72. 
+  // An 82 rated CDM will now mathematically calculate to ~87.
+  // An 81 rated Padder will now mathematically calculate to ~85.
+  // A 93 rating remains impossible unless a player hits the absolute maximum cap on every single stat.
+  let finalRating = wf <= 72 ? wf : 72 + 8.5 * Math.log1p((wf - 72) / 4.0);
 
-  return Math.max(40, Math.min(99, Math.round(finalRating)));
-}
+  return Math.max(40, Math.min(99, Math.round(finalRating)));}
 function ratingTier(r){
-  if(r>=85) return { name:'ICON', c1:'#3a2a52', c2:'#0d0916', accent:'#b98cf0', border:'#8a5fd6' };
-  if(r>=75) return { name:'GOLD', c1:'#4a3a12', c2:'#17110a', accent:'#f2b33d', border:'#c99a2f' };
-  if(r>=65) return { name:'SILVER', c1:'#3a4046', c2:'#111417', accent:'#cfd6d1', border:'#8b969c' };
-  return { name:'BRONZE', c1:'#3a2818', c2:'#140d08', accent:'#c98a4d', border:'#8a5c34' };
-}
+if (r >= 90) return { 
+    name: 'ELITE DIAMOND', 
+    c1: '#050505', // Pure Vantablack Base
+    c2: '#12141a', // Deep Obsidian
+    accent: '#e0f7fa', // Flawless Diamond Blue / Ice
+    border: '#ffffff', // Pure Luminous White Edge
+    glow: '0 0 25px rgba(224, 247, 250, 0.5)', // Bright diamond aura
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #aee2ff 100%)' // Ice-to-white crisp metallic text
+  };
+
+  if (r >= 85) return { 
+    name: 'DIAMOND', 
+    c1: '#0a1128', // Deep Midnight Navy
+    c2: '#01030a', // True Abyss
+    accent: '#ebd586', // Premium Champagne Gold
+    border: '#f9f1cc', // Brilliant Diamond-Gold Edge
+    glow: '0 0 20px rgba(235, 213, 134, 0.4)', 
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #ebd586 100%)' 
+  };
+  
+  if (r >= 77) return { 
+    name: 'ELITE GOLD', 
+    c1: '#1c1a17', // Matte Charcoal
+    c2: '#000000', // Pure Black Base
+    accent: '#ffd700', // Classic EA Solid Gold
+    border: '#c59b27', // Rich Metallic Gold
+    glow: '0 0 15px rgba(255, 215, 0, 0.25)', 
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #ffd700 100%)' 
+  };
+
+  if (r >= 70) return { 
+    name: 'GOLD', 
+    c1: '#4a3a12', // Classic EA Rare Gold Base
+    c2: '#1a1304', // Deep Shadow Gold Fade
+    accent: '#fde08b', // Bright Yellow Gold
+    border: '#d4af37', // Standard Gold Frame
+    glow: '0 0 12px rgba(212, 175, 55, 0.2)', 
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #fde08b 100%)' 
+  };
+  
+  if (r >= 65) return { 
+    name: 'SILVER STAR', 
+    c1: '#262b30', // Sleek Slate Grey
+    c2: '#0d1012', // Obsidian
+    accent: '#f8f9fa', // Pure Ice White
+    border: '#adb5bd', // Brushed Chrome
+    glow: '0 0 15px rgba(248, 249, 250, 0.15)', 
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #ced4da 100%)' 
+  };
+  
+  return { 
+    name: 'BRONZE', 
+    c1: '#2e1c14', // Deep Mahogany Wood
+    c2: '#120703', // Pitch Brown
+    accent: '#e6a47a', // Premium Rose Gold / Copper
+    border: '#a35a32', // Polished Bronze
+    glow: '0 0 12px rgba(230, 164, 122, 0.15)', 
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #e6a47a 100%)' 
+  };}
 
 /* A small badge next to any displayed rating (FC card, TOTW, POTW):
    90+ earns a star, 85-89 earns a diamond icon, anything lower gets
