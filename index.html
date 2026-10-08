@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gardens Football Federation — Official Match Records</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#07080f;
@@ -38,14 +38,6 @@
   --body: 'Inter', sans-serif;
   --mono: 'JetBrains Mono', monospace;
   --radius: 14px;
-  --paper: #ece3cf;
-  --paper2: #e2d6b8;
-  --paper-ink: #211a10;
-  --paper-ink-dim: #4a3f2c;
-  --paper-line: #7a6a46;
-  --paper-rule: rgba(33,26,16,0.35);
-  --gazette: 'Playfair Display', 'Georgia', serif;
-  --gazette-body: 'Libre Baskerville', 'Georgia', serif;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 html{scroll-behavior:smooth;}
@@ -133,7 +125,7 @@ nav.mainnav{ display:flex; align-items:center; gap:6px; }
   transition:.18s ease; box-shadow:0 20px 40px rgba(0,0,0,0.45);
   z-index:60;
 }
-.navgroup:hover .dropdown, .navgroup:focus-within .dropdown{ opacity:1; visibility:visible; transform:translateY(0); }
+.navgroup:hover .dropdown, .navgroup:focus-within .dropdown, .navgroup.open .dropdown{ opacity:1; visibility:visible; transform:translateY(0); }
 .dropdown a{
   display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px;
   color:var(--chalk); text-decoration:none; font-size:13.5px; font-family:var(--body); font-weight:500;
@@ -156,6 +148,8 @@ nav.mainnav{ display:flex; align-items:center; gap:6px; }
   border:1px solid rgba(242,179,61,0.3); padding:8px 12px; border-radius:999px; display:flex; align-items:center; gap:8px;
 }
 .dot{width:6px;height:6px;border-radius:50%;background:var(--turf); box-shadow:0 0 8px var(--turf);}
+.season-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px; padding-bottom:18px; border-bottom:1px solid var(--line); }
+.season-tabs .pill-btn{ font-size:11.5px; padding:7px 14px; }
 
 #app{ position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:36px 28px 90px; min-height:70vh; }
 .view{ animation: viewIn .5s cubic-bezier(.2,.7,.2,1); }
@@ -397,6 +391,7 @@ table.roster td.num{ font-family:var(--mono); text-align:center; color:var(--mut
 .player-card .pc-stats{ display:flex; gap:13px; margin-top:12px; flex-wrap:wrap; position:relative; z-index:1; }
 .player-card .pc-stat{ font-family:var(--mono); font-size:10.5px; color:var(--muted); }
 .player-card .pc-stat b{ color:var(--chalk); font-size:14px; display:block; }
+.player-card .pc-season-tag{ font-family:var(--mono); font-size:8px; letter-spacing:1.5px; color:var(--muted-dim); margin-top:8px; position:relative; z-index:1; }
 .player-card .pc-position-edit{ margin-top:12px; position:relative; z-index:2; }
 .player-card .pc-position-edit select{
   width:100%; background:rgba(0,0,0,.35); border:1px solid var(--line); color:var(--chalk); font-family:var(--mono);
@@ -653,55 +648,6 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
 .rating-badge.star{ color:#facc15; text-shadow:0 0 8px rgba(250,204,21,.6); }
 .rating-badge.icon{ color:#b98cf0; text-shadow:0 0 8px rgba(185,140,240,.5); }
 
-/* ---------- Team of the Week — clean space-accented special cards ----------
-   A one-off "for show" card per week, never touching the player's real
-   rating anywhere else in the archive. Kept deliberately restrained: one
-   soft accent tint, one subtle star layer, no stacked glows. */
-.totw-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); gap:20px; margin-bottom:10px; }
-.totw-card{
-  position:relative; overflow:hidden; border-radius:16px; padding:20px 20px 18px; cursor:pointer;
-  background:
-    radial-gradient(circle at 25% 0%, rgba(139,92,246,0.20), transparent 55%),
-    #0d0b18;
-  border:1px solid rgba(167,139,250,.25);
-  box-shadow:0 10px 24px rgba(0,0,0,.3);
-  transition:.2s ease;
-}
-.totw-card:hover{
-  transform:translateY(-4px);
-  border-color:rgba(167,139,250,.45);
-  box-shadow:0 16px 32px rgba(0,0,0,.4);
-}
-.totw-top{ display:flex; align-items:flex-start; justify-content:space-between; position:relative; z-index:1; }
-.totw-rating{
-  font-family:var(--display); font-size:36px; line-height:1;
-  background:linear-gradient(120deg,#e9d5ff,#a78bfa);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.totw-rating .lbl{ display:block; font-family:var(--mono); font-size:8px; letter-spacing:2px; color:#a78bfa; text-transform:uppercase; margin-top:3px; }
-.totw-position{
-  font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.5px; color:#0d0b18;
-  background:#c4b5fd; padding:4px 9px; border-radius:6px; text-transform:uppercase; flex-shrink:0;
-}
-.totw-name{ font-family:var(--head); font-size:18px; color:var(--chalk); margin-top:12px; position:relative; z-index:1; }
-.totw-week-tag{ font-family:var(--mono); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; margin-top:3px; position:relative; z-index:1; }
-.totw-stats{ display:flex; gap:13px; margin-top:14px; flex-wrap:wrap; position:relative; z-index:1; }
-.totw-stat{ font-family:var(--mono); font-size:10px; color:var(--muted); }
-.totw-stat b{ color:var(--chalk); font-size:14px; display:block; }
-.totw-insight{
-  margin-top:12px; font-family:var(--body); font-size:12px; color:var(--muted); line-height:1.5; position:relative; z-index:1;
-  border-top:1px solid var(--line); padding-top:10px;
-}
-
-/* Player of the Week — same card, gold-flagged as fan-voted */
-.potw-card{ border-color:rgba(250,204,21,.3); }
-.potw-card:hover{ border-color:rgba(250,204,21,.5); }
-.potw-ribbon{
-  font-family:var(--mono); font-size:9px; letter-spacing:1px; text-transform:uppercase; color:#1a1400;
-  background:#facc15; display:inline-block; padding:3px 9px; border-radius:6px;
-  margin-bottom:12px; position:relative; z-index:1; font-weight:700;
-}
-.potw-rating{ background:linear-gradient(120deg,#fde68a,#facc15); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .trophy-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; text-align:center; transition:.2s; }
 .trophy-card.has{ border-color:rgba(242,179,61,.4); background:linear-gradient(160deg, var(--surface2), var(--surface)); }
 .trophy-card .trophy-ic{ width:26px; height:30px; margin:0 auto 10px; opacity:.9; }
@@ -756,87 +702,6 @@ footer.site-foot .credit-line{ margin-top:10px; font-family:var(--head); font-si
 .patch-list{ list-style:none; display:flex; flex-direction:column; gap:10px; }
 .patch-list li{ font-size:13.5px; color:var(--muted); line-height:1.6; padding-left:20px; position:relative; }
 .patch-list li::before{ content:"⚽"; position:absolute; left:0; top:0; font-size:11px; }
-
-/* Federation News — styled as a vintage newspaper clipping sitting on the dark page */
-.section-news{ margin-top:56px; }
-.gazette-masthead{
-  background:var(--paper); color:var(--paper-ink); border-radius:4px 4px 0 0;
-  padding:18px 26px 14px; text-align:center; position:relative;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-  border:1px solid var(--paper-line); border-bottom:none;
-}
-.gazette-masthead .gm-top{
-  display:flex; align-items:center; justify-content:space-between; font-family:var(--mono);
-  font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--paper-ink-dim);
-  border-bottom:1px solid var(--paper-rule); padding-bottom:8px; margin-bottom:10px;
-}
-.gazette-masthead .gm-name{
-  font-family:var(--gazette); font-weight:900; font-size:clamp(30px,5vw,46px); letter-spacing:.5px;
-  line-height:1; text-transform:uppercase;
-}
-.gazette-masthead .gm-tagline{
-  font-family:var(--gazette-body); font-style:italic; font-size:12.5px; color:var(--paper-ink-dim); margin-top:6px;
-}
-.gazette-masthead .gm-rule{ height:4px; margin-top:12px; background:
-  repeating-linear-gradient(90deg, var(--paper-ink) 0 3px, transparent 3px 6px);
-  opacity:.85;
-}
-.news-feed{
-  display:flex; flex-direction:column; background:var(--paper); border:1px solid var(--paper-line); border-top:none;
-  border-radius:0 0 4px 4px; padding:6px 4px 18px; box-shadow:0 20px 50px rgba(0,0,0,.4);
-}
-.news-card{
-  position:relative; background:transparent; color:var(--paper-ink);
-  border:none; border-top:1px solid var(--paper-rule); border-radius:0; padding:22px 26px 20px;
-  transition:.15s; cursor:pointer;
-}
-.news-card:first-child{ border-top:none; }
-.news-card:hover{ background:rgba(33,26,16,0.045); }
-.news-card.featured{ padding:28px 30px 24px; }
-.news-card.featured .news-headline{ font-size:clamp(24px,3.4vw,34px); }
-.news-card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-.news-tag{
-  font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--paper-ink);
-  border:1px solid var(--paper-ink); padding:3px 9px; border-radius:0; opacity:.85;
-}
-.news-remove{
-  background:transparent; border:1px solid var(--paper-line); color:var(--paper-ink-dim); width:26px; height:26px; border-radius:4px;
-  cursor:pointer; font-family:var(--mono); font-size:12px; transition:.2s; flex-shrink:0;
-}
-.news-remove:hover{ border-color:var(--crimson); color:var(--crimson); }
-.news-headline{
-  font-family:var(--gazette); font-weight:900; font-size:22px; letter-spacing:.2px; line-height:1.15;
-  color:var(--paper-ink); margin-bottom:8px;
-}
-.news-dateline{ font-family:var(--mono); font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--paper-ink-dim); margin-bottom:10px; }
-.news-body{ font-family:var(--gazette-body); font-size:14.5px; color:var(--paper-ink-dim); line-height:1.7; white-space:pre-wrap; }
-.news-body::first-letter{ font-family:var(--gazette); font-weight:900; font-size:2.8em; float:left; line-height:.85; padding:2px 6px 0 0; color:var(--paper-ink); }
-.news-meta{ margin-top:14px; font-family:var(--mono); font-size:9.5px; color:var(--paper-line); letter-spacing:.5px; border-top:1px dotted var(--paper-rule); padding-top:8px; }
-
-/* Correspondent byline — old-timey "By ___" credit line, no photo, initials seal instead */
-.news-byline{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-.news-avatar{
-  width:36px; height:36px; border-radius:50%; flex-shrink:0;
-  background:var(--paper-ink); color:var(--paper);
-  border:2px solid var(--paper-ink); display:flex; align-items:center; justify-content:center;
-  font-family:var(--gazette); font-weight:700; font-size:13px; letter-spacing:.5px;
-}
-.news-avatar.lg{ width:48px; height:48px; font-size:17px; }
-.news-byline-name{ font-family:var(--gazette-body); font-style:italic; font-weight:700; font-size:13px; color:var(--paper-ink); }
-.news-byline-role{ font-family:var(--mono); font-size:8.5px; color:var(--paper-ink-dim); letter-spacing:1px; text-transform:uppercase; margin-top:1px; }
-.news-quote{ position:relative; font-family:var(--gazette-body); font-style:italic; font-size:14.5px; color:var(--paper-ink); line-height:1.65; }
-.news-quote-mark{ font-family:var(--gazette); font-weight:900; font-size:24px; color:var(--paper-line); margin-right:3px; vertical-align:-5px; }
-
-/* Full-story modal — same paper treatment */
-.news-modal{ max-width:560px; background:var(--paper); color:var(--paper-ink); border-color:var(--paper-line); }
-.news-modal h3{ font-family:var(--gazette); font-weight:900; color:var(--paper-ink); font-size:24px; }
-.news-modal-body p{ font-family:var(--gazette-body); font-size:14.5px; color:var(--paper-ink-dim); line-height:1.75; margin-bottom:12px; }
-.news-modal-body p:first-of-type::first-letter{ font-family:var(--gazette); font-weight:900; font-size:2.6em; float:left; line-height:.8; padding:3px 6px 0 0; color:var(--paper-ink); }
-.news-modal-body p:last-child{ margin-bottom:0; }
-.news-modal .modal-actions .pill-btn{ background:var(--paper-ink); color:var(--paper); border:none; }
-
-/* Position select dropdowns grouped by category */
-select optgroup{ font-family:var(--mono); font-style:normal; color:var(--muted); }
 
 /* utility */
 .hidden{ display:none !important; }
@@ -903,9 +768,8 @@ select optgroup{ font-family:var(--mono); font-style:normal; color:var(--muted);
   <nav class="mainnav" id="mainnav">
     <button class="navbtn" id="nav-records" onclick="navigate('records','5v5')">Official Matches Record</button>
     <button class="navbtn" id="nav-players" onclick="navigate('players')">Players Registered</button>
-    <button class="navbtn" id="nav-totw" onclick="navigate('totw')">Team of the Week</button>
-    <div class="navgroup">
-      <button class="navbtn">Stats <span class="caret">▾</span></button>
+    <div class="navgroup" id="stats-navgroup">
+      <button class="navbtn" onclick="toggleStatsDropdown(event)">Stats <span class="caret">▾</span></button>
       <div class="dropdown">
         <a onclick="navigate('stats','topscorers')">⚽ Top Scorers</a>
         <a onclick="navigate('stats','assists')">🎯 Most Assists</a>
@@ -952,11 +816,11 @@ let STATE = {
   matches: [],
   admin: null,       // {name}
   loaded: false,
-  positions: {},      // normalized player name -> position code (GK/CB/LB/RB/LWB/RWB/CDM/CM/CAM/LM/RM/LW/RW/CF/ST)
+  positions: {},      // normalized player name -> position code (GK/DEF/MID/FWD)
   loginHistory: [],    // [{name, ts}]
   playerData: {},      // normalized player name -> {birthdate, height, weight, trophies:{...}}
-  news: [],            // admin-posted announcements + weekly reports: [{id, headline, body|teaser/story, createdAt, expiresAt, postedBy, kind}]
-  weekLog: []          // admin-triggered week boundaries: [{week, endedAt, matchIds, totw, potw}]
+  seasonMeta: { current: 1, history: [] }, // current: active season number new matches are tagged with.
+                                            // history: [{number, startDate, endDate, endedAt}] — every season once ended, permanent.
 };
 
 /* =========================================================
@@ -1011,8 +875,7 @@ const matchesRef = firebaseReady ? db.ref('matches') : null;
 const positionsRef = firebaseReady ? db.ref('positions') : null;
 const loginHistoryRef = firebaseReady ? db.ref('loginHistory') : null;
 const playerDataRef = firebaseReady ? db.ref('playerData') : null;
-const newsRef = firebaseReady ? db.ref('news') : null;
-const weekLogRef = firebaseReady ? db.ref('weekLog') : null;
+const seasonMetaRef = firebaseReady ? db.ref('seasonMeta') : null;
 const connectedRef = firebaseReady ? db.ref('.info/connected') : null;
 
 // Tracks whether each location has delivered its first value yet.
@@ -1020,10 +883,10 @@ const connectedRef = firebaseReady ? db.ref('.info/connected') : null;
 // importantly, each one flips its flag even on error, so a bad
 // config or a permissions problem can never leave the "LOADING
 // OFFICIAL RECORDS…" screen spinning forever.
-const loadFlags = { matches:false, positions:false, loginHistory:false, playerData:false, news:false, weekLog:false };
+const loadFlags = { matches:false, positions:false, loginHistory:false, playerData:false, seasonMeta:false };
 function markLoadedAndRender(key){
   loadFlags[key] = true;
-  if(loadFlags.matches && loadFlags.positions && loadFlags.loginHistory && loadFlags.playerData && loadFlags.news && loadFlags.weekLog){
+  if(loadFlags.matches && loadFlags.positions && loadFlags.loginHistory && loadFlags.playerData && loadFlags.seasonMeta){
     STATE.loaded = true;
   }
   render();
@@ -1073,22 +936,13 @@ function startRealtimeSync(){
     markLoadedAndRender('playerData');
   });
 
-  newsRef.on('value', snap => {
+  seasonMetaRef.on('value', snap => {
     const val = snap.val();
-    STATE.news = val ? Object.values(val) : [];
-    markLoadedAndRender('news');
+    STATE.seasonMeta = val && val.current ? { current: val.current, history: val.history || [] } : { current: 1, history: [] };
+    markLoadedAndRender('seasonMeta');
   }, err => {
-    console.error('news sync error:', err);
-    markLoadedAndRender('news');
-  });
-
-  weekLogRef.on('value', snap => {
-    const val = snap.val();
-    STATE.weekLog = val ? Object.values(val) : [];
-    markLoadedAndRender('weekLog');
-  }, err => {
-    console.error('weekLog sync error:', err);
-    markLoadedAndRender('weekLog');
+    console.error('seasonMeta sync error:', err);
+    markLoadedAndRender('seasonMeta');
   });
 
   connectedRef.on('value', snap => {
@@ -1157,26 +1011,14 @@ async function savePlayerData(){
   }
 }
 
-async function saveNews(){
+async function saveSeasonMeta(){
   if(!firebaseReady){ showToast("Not connected to the database yet — see setup instructions."); return false; }
   try{
-    await newsRef.set(STATE.news);
+    await seasonMetaRef.set(STATE.seasonMeta);
     return true;
   }catch(e){
-    console.error('saveNews failed:', e);
-    showToast("Could not save news — database error.");
-    return false;
-  }
-}
-
-async function saveWeekLog(){
-  if(!firebaseReady){ showToast("Not connected to the database yet — see setup instructions."); return false; }
-  try{
-    await weekLogRef.set(STATE.weekLog);
-    return true;
-  }catch(e){
-    console.error('saveWeekLog failed:', e);
-    showToast("Could not save week log — database error.");
+    console.error('saveSeasonMeta failed:', e);
+    showToast("Could not save season data — database error.");
     return false;
   }
 }
@@ -1243,43 +1085,14 @@ function trophySVG(cls){
 }
 
 /* =========================================================
-   Player positions — full FC-style position set, grouped into
-   four broad categories (GK / DEF / MID / FWD) so systems like
-   Team of the Week — which pick "a defender" or "a midfielder"
-   rather than a specific slot — still work unchanged.
+   Player positions
 ========================================================= */
-const POSITION_GROUPS = [
-  { code:'GK',  label:'Goalkeeper' },
-  { code:'DEF', label:'Defenders' },
-  { code:'MID', label:'Midfielders' },
-  { code:'FWD', label:'Forwards' }
-];
 const POSITIONS = {
-  GK:  { label:'Goalkeeper',            category:'GK',  accent:'var(--amber)' },
-  CB:  { label:'Centre Back',           category:'DEF', accent:'var(--blue)' },
-  LB:  { label:'Left Back',             category:'DEF', accent:'var(--blue)' },
-  RB:  { label:'Right Back',            category:'DEF', accent:'var(--blue)' },
-  LWB: { label:'Left Wing Back',        category:'DEF', accent:'var(--blue)' },
-  RWB: { label:'Right Wing Back',       category:'DEF', accent:'var(--blue)' },
-  CDM: { label:'Defensive Midfielder',  category:'MID', accent:'var(--turf)' },
-  CM:  { label:'Central Midfielder',    category:'MID', accent:'var(--turf)' },
-  CAM: { label:'Attacking Midfielder',  category:'MID', accent:'var(--turf)' },
-  LM:  { label:'Left Midfielder',       category:'MID', accent:'var(--turf)' },
-  RM:  { label:'Right Midfielder',      category:'MID', accent:'var(--turf)' },
-  LW:  { label:'Left Winger',           category:'FWD', accent:'var(--crimson)' },
-  RW:  { label:'Right Winger',          category:'FWD', accent:'var(--crimson)' },
-  CF:  { label:'Centre Forward',        category:'FWD', accent:'var(--crimson)' },
-  ST:  { label:'Striker',               category:'FWD', accent:'var(--crimson)' }
+  GK:{ label:'Goalkeeper', accent:'var(--amber)' },
+  DEF:{ label:'Defender', accent:'var(--blue)' },
+  MID:{ label:'Midfielder', accent:'var(--turf)' },
+  FWD:{ label:'Forward', accent:'var(--crimson)' }
 };
-/* Builds a <select>-ready set of <optgroup>s, positions grouped under
-   Goalkeeper / Defenders / Midfielders / Forwards, so a 15-option list
-   stays easy to scan instead of one long flat dropdown. */
-function positionOptionsHTML(selected){
-  return POSITION_GROUPS.map(g=>{
-    const codes = Object.keys(POSITIONS).filter(c=>POSITIONS[c].category===g.code);
-    return `<optgroup label="${g.label}">${codes.map(code=>`<option value="${code}" ${selected===code?'selected':''}>${code} · ${POSITIONS[code].label}</option>`).join('')}</optgroup>`;
-  }).join('');
-}
 function getPlayerPosition(normName){
   return STATE.positions[normName] || '';
 }
@@ -1288,7 +1101,7 @@ async function setPlayerPosition(normName, select){
   const pos = select.value;
   if(pos) STATE.positions[normName] = pos; else delete STATE.positions[normName];
   await savePositions();
-  showToast(pos ? `Position set to ${POSITIONS[pos].label} (${pos}).` : 'Position cleared.');
+  showToast(pos ? `Position set to ${(POSITIONS[pos]&&POSITIONS[pos].label)||pos}.` : 'Position cleared.');
 }
 
 /* =========================================================
@@ -1376,9 +1189,10 @@ async function adjustTrophy(normName, key, delta){
 
 /* Season Highlights — computed automatically from every match entry.
    Not shown as its own stats page; only surfaced inside a player's profile. */
-function getSeasonHighlights(normName){
+function getSeasonHighlights(normName, matchList){
+  matchList = matchList || STATE.matches;
   const hattricks = [], assistHats = [], cleanSheets = [];
-  STATE.matches.forEach(m=>{
+  matchList.forEach(m=>{
     [['team1','team2'],['team2','team1']].forEach(([own,opp])=>{
       const player = m[own].players.find(p=>normalize(p.name)===normName);
       if(!player) return;
@@ -1400,7 +1214,7 @@ function getSeasonHighlights(normName){
    Football card rating (community "FC rating", 40-99 scale)
 ========================================================= */
 function cardRating(p){const avg = p.ratingCount ? (p.ratingSum/p.ratingCount) : 5.0;
-  
+ 
   // EXACT ORIGINAL CODE - No changed multipliers, no loopholes.
   // The CDM mathematically beats the padder natively right here.
   let score = 30
@@ -1418,18 +1232,18 @@ function cardRating(p){const avg = p.ratingCount ? (p.ratingSum/p.ratingCount) :
   const workloadFactor = 0.8 + 0.2 * Math.min(1, avgMinutes / mDur);
 
   let wf = score * workloadFactor;
-  
+ 
   // THE MATHEMATICAL FIX:
-  // We only changed the anchor from 65 to 72. 
+  // We only changed the anchor from 65 to 72.
   // An 82 rated CDM will now mathematically calculate to ~87.
   // An 81 rated Padder will now mathematically calculate to ~85.
   // A 93 rating remains impossible unless a player hits the absolute maximum cap on every single stat.
   let finalRating = wf <= 72 ? wf : 72 + 8.5 * Math.log1p((wf - 72) / 4.0);
 
-  return Math.max(40, Math.min(99, Math.round(finalRating)));}
-function ratingTier(r){
-if (r >= 90) return { 
-    name: 'ELITE DIAMOND', 
+  return Math.max(40, Math.min(99, Math.round(finalRating)));
+}
+function ratingTier(r){if (r >= 90) return {
+    name: 'ELITE DIAMOND',
     c1: '#050505', // Pure Vantablack Base
     c2: '#12141a', // Deep Obsidian
     accent: '#e0f7fa', // Flawless Diamond Blue / Ice
@@ -1438,57 +1252,57 @@ if (r >= 90) return {
     textFX: 'linear-gradient(180deg, #ffffff 0%, #aee2ff 100%)' // Ice-to-white crisp metallic text
   };
 
-  if (r >= 85) return { 
-    name: 'DIAMOND', 
+  if (r >= 85) return {
+    name: 'DIAMOND',
     c1: '#0a1128', // Deep Midnight Navy
     c2: '#01030a', // True Abyss
     accent: '#ebd586', // Premium Champagne Gold
     border: '#f9f1cc', // Brilliant Diamond-Gold Edge
-    glow: '0 0 20px rgba(235, 213, 134, 0.4)', 
-    textFX: 'linear-gradient(180deg, #ffffff 0%, #ebd586 100%)' 
+    glow: '0 0 20px rgba(235, 213, 134, 0.4)',
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #ebd586 100%)'
   };
-  
-  if (r >= 77) return { 
-    name: 'ELITE GOLD', 
+ 
+  if (r >= 77) return {
+    name: 'ELITE GOLD',
     c1: '#1c1a17', // Matte Charcoal
     c2: '#000000', // Pure Black Base
     accent: '#ffd700', // Classic EA Solid Gold
     border: '#c59b27', // Rich Metallic Gold
-    glow: '0 0 15px rgba(255, 215, 0, 0.25)', 
-    textFX: 'linear-gradient(180deg, #ffffff 0%, #ffd700 100%)' 
+    glow: '0 0 15px rgba(255, 215, 0, 0.25)',
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #ffd700 100%)'
   };
 
-  if (r >= 70) return { 
-    name: 'GOLD', 
+  if (r >= 70) return {
+    name: 'GOLD',
     c1: '#4a3a12', // Classic EA Rare Gold Base
     c2: '#1a1304', // Deep Shadow Gold Fade
     accent: '#fde08b', // Bright Yellow Gold
     border: '#d4af37', // Standard Gold Frame
-    glow: '0 0 12px rgba(212, 175, 55, 0.2)', 
-    textFX: 'linear-gradient(180deg, #ffffff 0%, #fde08b 100%)' 
+    glow: '0 0 12px rgba(212, 175, 55, 0.2)',
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #fde08b 100%)'
   };
-  
-  if (r >= 65) return { 
-    name: 'SILVER STAR', 
+ 
+  if (r >= 65) return {
+    name: 'SILVER STAR',
     c1: '#262b30', // Sleek Slate Grey
     c2: '#0d1012', // Obsidian
     accent: '#f8f9fa', // Pure Ice White
     border: '#adb5bd', // Brushed Chrome
-    glow: '0 0 15px rgba(248, 249, 250, 0.15)', 
-    textFX: 'linear-gradient(180deg, #ffffff 0%, #ced4da 100%)' 
+    glow: '0 0 15px rgba(248, 249, 250, 0.15)',
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #ced4da 100%)'
   };
-  
-  return { 
-    name: 'BRONZE', 
+ 
+  return {
+    name: 'BRONZE',
     c1: '#2e1c14', // Deep Mahogany Wood
     c2: '#120703', // Pitch Brown
     accent: '#e6a47a', // Premium Rose Gold / Copper
     border: '#a35a32', // Polished Bronze
-    glow: '0 0 12px rgba(230, 164, 122, 0.15)', 
-    textFX: 'linear-gradient(180deg, #ffffff 0%, #e6a47a 100%)' 
+    glow: '0 0 12px rgba(230, 164, 122, 0.15)',
+    textFX: 'linear-gradient(180deg, #ffffff 0%, #e6a47a 100%)'
   };}
 
-/* A small badge next to any displayed rating (FC card, TOTW, POTW):
+/* A small badge next to any displayed rating (FC card, player profile):
    90+ earns a star, 85-89 earns a diamond icon, anything lower gets
    no badge at all. */
 function ratingBadge(rating){
@@ -1505,14 +1319,13 @@ function ratingBadge(rating){
      - direct impact: equal and very low contribution from attack (goals/assists) and saves, preventing stat farming by attackers
      - sustained quality: heavily dominated by average match rating across every appearance to properly balance midfielders, defenders, and goalkeepers
 */
-function bestPlayerScore(p){
-  const avgRating = p.ratingCount ? (p.ratingSum / p.ratingCount) : 0;
+function bestPlayerScore(p){ const avgRating = p.ratingCount ? (p.ratingSum / p.ratingCount) : 0;
 
 const attackContrib = ((p.goals || 0) + (p.assists || 0)) * 0.005;
 const saveContrib = (p.saves || 0) * 0.005;
 
 // Target matches needed for 100% full rating boost multiplier
-const TARGET_MATCHES = 20; 
+const TARGET_MATCHES = 20;
 
 // Power curve penalty: (10 / 20)^1.5 = ~0.35 (Only 35% rating weight for 10 matches)
 // (19 / 20)^1.5 = ~0.92 (92% rating weight for 19 matches)
@@ -1522,7 +1335,7 @@ const matchWeight = Math.pow(Math.min(1, (p.matches || 0) / TARGET_MATCHES), 1.5
 const ratingContrib = avgRating * 25.0 * matchWeight;
 
 // Minimal base match points
-const matchContrib = (p.matches || 0) * 0.01; 
+const matchContrib = (p.matches || 0) * 0.01;
 
 return matchContrib + attackContrib + saveContrib + ratingContrib;}
 
@@ -1593,10 +1406,45 @@ function computeAggregates(matchList){
   return Object.values(players).map(p=>{ p.ga = p.goals + p.assists; return p; });
 }
 
+/* =========================================================
+   Seasons — leaderboards & FC-card stats reset per season,
+   but a player's FC Rating is always computed from every match
+   ever played (seasonMatchList / 'all' below), so rating carries
+   over season to season and only the visible counting stats reset.
+========================================================= */
+function seasonMatchList(seasonNum){
+  // Matches saved before this feature existed have no .season tag —
+  // treat them as belonging to Season 1, same as STATE.seasonMeta
+  // starting at 1, so nothing changes for an archive that hasn't
+  // ended a season yet.
+  return STATE.matches.filter(m => (m.season || 1) === seasonNum);
+}
+function resolveSeasonMatchList(seasonSel){
+  // seasonSel is 'all', 'current', or a season number (string or number)
+  if(seasonSel === 'all') return STATE.matches;
+  if(seasonSel === 'current') return seasonMatchList(STATE.seasonMeta.current);
+  return seasonMatchList(Number(seasonSel));
+}
+function seasonOptionsList(){
+  // Newest first: current season, then every ended season descending.
+  const opts = [{ value:'current', label:`Season ${STATE.seasonMeta.current} (current)` }];
+  STATE.seasonMeta.history.slice().sort((a,b)=>b.number-a.number).forEach(s=>{
+    opts.push({ value:String(s.number), label:`Season ${s.number}` });
+  });
+  return opts;
+}
+function renderSeasonTabs(selected, onClickFn, includeAllTime){
+  const opts = seasonOptionsList();
+  const all = includeAllTime ? [{ value:'all', label:'All-Time' }] : [];
+  const full = all.concat(opts);
+  return `<div class="season-tabs">${full.map(o=>`<button class="pill-btn season-tab ${String(selected)===o.value?'primary':''}" onclick="${onClickFn}('${o.value}')">${o.label}</button>`).join('')}</div>`;
+}
+
 /* Returns the full match history for one player (by normalized name), most recent first */
-function getPlayerHistory(normName){
+function getPlayerHistory(normName, matchList){
+  matchList = matchList || STATE.matches;
   const rows = [];
-  STATE.matches.forEach(m=>{
+  matchList.forEach(m=>{
     [['team1','team2'],['team2','team1']].forEach(([own,opp])=>{
       const found = m[own].players.find(p=>normalize(p.name)===normName);
       if(found){
@@ -1609,622 +1457,67 @@ function getPlayerHistory(normName){
   const seen = new Set();
   return rows.filter(r=>{ if(seen.has(r.match.id)) return false; seen.add(r.match.id); return true; });
 }
-/* =========================================================
-   Federation News — a home-page news feed.
-   When the admin has an active (non-expired) announcement, it's
-   shown. Otherwise the app writes its own short recap: a summary
-   of the latest match if one was played recently, or a rotating
-   historical highlight pulled from the archive on quiet days.
-========================================================= */
-const NEWS_RECENT_WINDOW_DAYS = 7;
-
-function daysSince(dateStr){
-  const d = new Date(dateStr+"T00:00:00");
-  if(isNaN(d)) return Infinity;
-  return Math.floor((new Date() - d) / (1000*60*60*24));
-}
-function hashStr(s){
-  let h = 0;
-  for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; }
-  return h;
-}
-function pick(arr, seed){ return arr[seed % arr.length]; }
-
-function getActiveNews(){
-  const now = Date.now();
-  return (STATE.news||[]).filter(n=> n.expiresAt==null || n.expiresAt > now).sort((a,b)=>b.createdAt-a.createdAt);
-}
-
-/* The Federation's own in-house correspondent — an original character,
-   not a real person. Gets an illustrated initials badge, never a photo. */
-const NEWS_CORRESPONDENT = { name:'Marco Delvecchio', role:'GFF Chief Correspondent — No Filter, No Mercy', initials:'MD' };
-
-function generateMatchRecap(m){
-  const s1 = scoreOf(m.team1, m.team2), s2 = scoreOf(m.team2, m.team1);
-  const seed = hashStr(m.id);
-  const draw = s1===s2;
-  const winnerTeam = s1>s2 ? m.team1 : m.team2;
-  const loserTeam = s1>s2 ? m.team2 : m.team1;
-  const winnerScore = Math.max(s1,s2), loserScore = Math.min(s1,s2);
-  const margin = winnerScore - loserScore;
-  const blowout = margin >= 4;
-  const rout = margin >= 2 && margin < 4;
-
-  const headline = draw ? pick([
-    `${m.team1.name} and ${m.team2.name} bore the entire pitch to a ${s1}-${s2} standstill`,
-    `Nobody wins as ${m.team1.name} and ${m.team2.name} limp to a gutless ${s1}-${s2} draw`,
-    `${m.team1.name} ${s1}-${s2} ${m.team2.name}: ninety minutes neither side deserved`
-  ], seed) : blowout ? pick([
-    `${winnerTeam.name} take ${loserTeam.name} to the cleaners, ${winnerScore}-${loserScore}`,
-    `${loserTeam.name} humiliated ${winnerScore}-${loserScore} as ${winnerTeam.name} feast`,
-    `${winnerTeam.name} run riot, leave ${loserTeam.name} in ruins ${winnerScore}-${loserScore}`
-  ], seed) : rout ? pick([
-    `${winnerTeam.name} put ${loserTeam.name} firmly in their place, ${winnerScore}-${loserScore}`,
-    `${loserTeam.name} outclassed, outfought and outscored ${winnerScore}-${loserScore}`,
-    `${winnerTeam.name} make light work of a toothless ${loserTeam.name}, ${winnerScore}-${loserScore}`
-  ], seed) : pick([
-    `${winnerTeam.name} scrape past a stubborn ${loserTeam.name}, ${winnerScore}-${loserScore}`,
-    `${winnerTeam.name} survive a scare to edge ${loserTeam.name} ${winnerScore}-${loserScore}`,
-    `${loserTeam.name} give it everything, still walk away empty-handed ${loserScore}-${winnerScore}`
-  ], seed);
-
-  const allPlayers = [...m.team1.players, ...m.team2.players];
-  const scorers = allPlayers.filter(p=>(+p.goals||0)>0).sort((a,b)=>(+b.goals||0)-(+a.goals||0));
-  const topScorer = scorers[0];
-  const otherScorers = scorers.slice(1,4);
-  const cleanSheetTeam = m.team1.cleanSheet ? m.team1.name : (m.team2.cleanSheet ? m.team2.name : null);
-  const cleanSheetOpp = m.team1.cleanSheet ? m.team2.name : (m.team2.cleanSheet ? m.team1.name : null);
-  const cardEvents = allPlayers.filter(p=>(+p.yellow||0)>0 || (+p.red||0)>0);
-  const subsUsed = allPlayers.filter(p=>p.isSub).length;
-  const extraGoals = (+m.team1.extraGoals||0) + (+m.team2.extraGoals||0);
-
-  const teaser = draw
-    ? `${m.team1.name} and ${m.team2.name} cancelled each other out in a ${s1}-${s2} snooze-fest${topScorer? `, salvaged only by ${topScorer.name} finding the net.`:' that nobody will be putting on the highlight reel.'}`
-    : `${winnerTeam.name} put ${loserTeam.name} to the sword ${winnerScore}-${loserScore}${topScorer? ` as ${(+topScorer.goals)>=3?`${topScorer.name} helped himself to a hat-trick`:`${topScorer.name} did the damage with ${topScorer.goals} goal${topScorer.goals===1?'':'s'}`}.`:', in a game that will not live long in the memory.'}`;
-
-  const story = [];
-  story.push(`${pick(['Under the lights','On a scrappy afternoon','In front of whoever bothered to show up','Out on the Federation turf'],seed+1)}, ${m.team1.name} and ${m.team2.name} went at it in a ${m.format.toUpperCase()} fixture on ${formatDate(m.date)}${draw ? `, and somehow contrived to finish level at ${s1}-${s2} — a scoreline that flatters both sides equally.` : blowout ? `, and it was over long before full time. ${winnerTeam.name} did not just win, they made a point: ${winnerScore}-${loserScore}.` : `, with ${winnerTeam.name} eventually getting the job done ${winnerScore}-${loserScore}.`}`);
-
-  if(topScorer){
-    const g = +topScorer.goals;
-    story.push(g>=3
-      ? `${topScorer.name} was the story of the match, helping himself to a hat-trick and leaving the opposition defence chasing shadows.${otherScorers.length? ` ${otherScorers.map(o=>o.name).join(' and ')} joined in too, because apparently one merciless finisher wasn't enough punishment for one afternoon.`:''}`
-      : `${topScorer.name} was the only one who turned up with any end product, chipping in with ${g} goal${g===1?'':'s'}${otherScorers.length? `, with a bit of help from ${otherScorers.map(o=>o.name).join(' and ')}.`:' while everyone else on the pitch admired the view.'}`);
-  } else if(!extraGoals && !draw){
-    story.push(`Neither side could muster a single moment of quality in front of goal — ninety minutes of huffing and puffing that produced absolutely nothing worth talking about.`);
-  } else if(!extraGoals && draw){
-    story.push(`Chances were nonexistent and finishing was worse. This was less a football match, more two teams politely declining to lose.`);
-  }
-
-  if(cleanSheetTeam){
-    story.push(`${cleanSheetTeam} kept a clean sheet — which says as much about ${cleanSheetOpp}'s toothless finishing as it does about any defending. Either way, it's on the record now.`);
-  }
-
-  if(cardEvents.length){
-    story.push(`Tempers frayed and discipline went out the window: cards shown to ${cardEvents.map(p=>`${p.name} (${(+p.red>0)?'red — an early bath, no complaints':'yellow, and lucky it wasn\u2019t worse'})`).join(', ')}. Somebody needs to have a word.`);
-  }
-
-  if(subsUsed>0){
-    story.push(`${subsUsed} substitute${subsUsed===1?'':'s'} came off the bench, though whether they actually changed anything is a matter for the archive, not this reporter.`);
-  }
-
-  if(m.motm){
-    story.push(`${m.motm} walked away with the Man of the Match award, comfortably the standout performer in a match that otherwise had little to shout about.`);
-  }
-
-  story.push(pick([
-    `Another result, filed and forgotten by most — but not by the archive.`,
-    `Full time, and frankly, not a moment too soon.`,
-    `That's the final word: official, on the record, and open to nobody's appeal.`,
-    `Result locked into the Federation's books — deserved or not, it counts.`
-  ], seed+3));
-
-  return { headline, teaser, story };
-}
-
-function generateHistoricalHighlight(){
-  const agg = computeAggregates();
-  const candidates = [];
-
-  const topScorer = [...agg].sort((a,b)=>b.goals-a.goals)[0];
-  if(topScorer && topScorer.goals>0) candidates.push({
-    headline: `${topScorer.name} still bullying the scoring charts`,
-    teaser: `${topScorer.name} sits top of the all-time scoring charts with ${topScorer.goals} goal${topScorer.goals===1?'':'s'} — and nobody else is close.`,
-    story: [
-      `Since these records began in 2024, one name refuses to leave the top of the scoring charts: ${topScorer.name}.`,
-      `${topScorer.goals} goal${topScorer.goals===1?'':'s'} from ${topScorer.matches} appearance${topScorer.matches===1?'':'s'} isn't luck, it's a pattern — everyone else on this list is playing for second place.`,
-      `Every chasing forward keeps saying this is the season they catch up. It never is.`
-    ]
-  });
-
-  const topAssist = [...agg].sort((a,b)=>b.assists-a.assists)[0];
-  if(topAssist && topAssist.assists>0) candidates.push({
-    headline: `${topAssist.name} makes everyone else look good — for a change`,
-    teaser: `${topAssist.name} has laid on ${topAssist.assists} assist${topAssist.assists===1?'':'s'} — more than any other player bothered to manage.`,
-    story: [
-      `Some players finish the move. ${topAssist.name} does the actual work and lets someone else take the glory — and still ends up top of this list anyway.`,
-      `${topAssist.assists} assist${topAssist.assists===1?'':'s'} across ${topAssist.matches} appearance${topAssist.matches===1?'':'s'} while half the forwards in this league can't finish a chance from two yards. Draw your own conclusions.`,
-      `It won't make the highlight reel. It'll still be the reason someone else does.`
-    ]
-  });
-
-  if(agg.length){
-    const bestRated = agg.map(p=>({p, r:cardRating(p)})).sort((a,b)=>b.r-a.r)[0];
-    candidates.push({
-      headline: `${bestRated.p.name} sits above everyone — for now`,
-      teaser: `Rated ${bestRated.r} overall, ${bestRated.p.name} is the highest-rated player on file, and everybody else is fighting for scraps.`,
-      story: [
-        `Every player carries a community FC Rating built from goals, assists, saves, discipline and average match rating — and right now, nobody else in this archive gets close to ${bestRated.p.name}.`,
-        `A rating of ${bestRated.r} from ${bestRated.p.matches} recorded appearance${bestRated.p.matches===1?'':'s'} isn't a fluke, it's a gap. A big one.`,
-        `Ratings are only ever a snapshot, though — one bad match and this whole list gets rewritten. This reporter will enjoy watching that happen.`
-      ]
-    });
-  }
-
-  const mostMotm = [...agg].sort((a,b)=>b.motm-a.motm)[0];
-  if(mostMotm && mostMotm.motm>0) candidates.push({
-    headline: `${mostMotm.name} keeps hogging Man of the Match`,
-    teaser: `${mostMotm.name} has picked up ${mostMotm.motm} Man of the Match award${mostMotm.motm===1?'':'s'} — more than anyone else, and it isn't particularly close.`,
-    story: [
-      `Goals and assists are one thing. Man of the Match awards are the panel actually agreeing someone was the best player on the pitch — and ${mostMotm.name} keeps winning that argument.`,
-      `${mostMotm.motm} award${mostMotm.motm===1?'':'s'} isn't a hot streak, it's a habit. The rest of the league has had plenty of chances to stop it and hasn't managed it yet.`,
-      `Consistency like that is hard to fake — and judging by the archive, nobody else here has even tried.`
-    ]
-  });
-
-  candidates.push({
-    headline: `Godspeed FC still run the honours board, whether anyone likes it or not`,
-    teaser: `Godspeed FC remain the most decorated side in Federation history with 2 Division 1 titles — and it isn't close.`,
-    story: [
-      `Individual form comes and goes week to week. The honours board doesn't lie, and right now it belongs to Godspeed FC.`,
-      `Two Division 1 titles put them clear at the top, with Galacticos FC and GG Beetles trailing on one apiece — chasing shadows, if this reporter is being honest.`,
-      `Every match logged from here adds another line to a history somebody else is going to have to work very hard to overwrite.`
-    ]
-  });
-
-  const totalMatches = STATE.matches.length;
-  const totalGoals = STATE.matches.reduce((s,m)=> s + scoreOf(m.team1, m.team2) + scoreOf(m.team2, m.team1), 0);
-  candidates.push(totalMatches>0 ? {
-    headline: `${totalMatches} matches in the books, and the standards still aren't improving`,
-    teaser: `The archive now holds ${totalMatches} official fixture${totalMatches===1?'':'s'} and ${totalGoals} recorded goal${totalGoals===1?'':'s'} — for better or worse.`,
-    story: [
-      `Quiet week on the pitch. The numbers, unfortunately, don't stop keeping score in the background.`,
-      `The Federation archive now holds ${totalMatches} official fixture${totalMatches===1?'':'s'} across every format, totalling ${totalGoals} recorded goal${totalGoals===1?'':'s'} since 2024 — some of them even deliberate.`,
-      `Every one of them permanent. Every one of them official. Nobody gets to quietly forget a bad result here.`
-    ]
-  } : {
-    headline: `The archive is empty and, frankly, so is the highlight reel`,
-    teaser: `No matches have been recorded yet — the Federation archive is still waiting for someone to actually show up and play one.`,
-    story: [
-      `A blank page. No fixtures, no scorers, no red cards to write about — just an archive waiting for somebody to give this reporter something to work with.`,
-      `Once an admin logs the first official match, this space fills up fast — recaps, hat-tricks, clean sheets, and no shortage of criticism.`,
-      `Every great rivalry starts with a first result. This one's still waiting, and the patience is wearing thin.`
-    ]
-  });
-
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000);
-  return candidates[dayOfYear % candidates.length];
-}
-
-function generateAutoNews(){
-  const sorted = [...STATE.matches].sort((a,b)=> (b.date||'').localeCompare(a.date||'') || b.createdAt-a.createdAt);
-  const latest = sorted[0];
-  if(latest && daysSince(latest.date) <= NEWS_RECENT_WINDOW_DAYS) return generateMatchRecap(latest);
-  return generateHistoricalHighlight();
-}
-
-async function submitNews(){
-  if(!STATE.admin) return;
-  const headline = document.getElementById('news-headline').value.trim();
-  const body = document.getElementById('news-body').value.trim();
-  const duration = Number(document.getElementById('news-duration').value)||0;
-  const unit = document.getElementById('news-unit').value;
-  const errBox = document.getElementById('news-err');
-  if(!headline || !body){ errBox.innerHTML = `<div class="err-text">Add both a headline and details.</div>`; return; }
-  if(duration <= 0){ errBox.innerHTML = `<div class="err-text">Set a visibility duration of at least 1.</div>`; return; }
-  const now = Date.now();
-  const msPerDay = 24*60*60*1000;
-  const durationMs = unit==='months' ? duration*30*msPerDay : duration*msPerDay;
-  const item = { id:'n_'+now+'_'+Math.random().toString(36).slice(2,7), headline, body, createdAt:now, expiresAt:now+durationMs, postedBy:STATE.admin.name };
-  STATE.news = [item, ...(STATE.news||[])];
-  closeModal();
-  const ok = await saveNews();
-  if(ok){ showToast('News posted to the home page.'); navigate('home'); }
-}
-
-async function deleteNews(id){
-  if(!STATE.admin) return;
-  STATE.news = (STATE.news||[]).filter(n=>n.id!==id);
-  await saveNews();
-  showToast('News removed.');
-  navigate('home');
-}
-
-/* =========================================================
-   Weekly reports — admin-only "End Week" tool.
-   Groups every match not yet claimed by a previous week into
-   the next week number, then has the correspondent file a
-   short, brutal recap: top 3 players of the week (by
-   week-only performance) and the highest overall-rated cards
-   among that week's participants. Posted straight to the news
-   feed like any other correspondent story — never shown as an
-   option to anyone who isn't logged in as admin.
-========================================================= */
-function getUnloggedMatches(){
-  const logged = new Set();
-  (STATE.weekLog||[]).forEach(w=>(w.matchIds||[]).forEach(id=>logged.add(id)));
-  return STATE.matches.filter(m=>!logged.has(m.id));
-}
-
-function generateWeeklyReport(weekMatches, weekNumber, topThree, highestRated){
-  const seed = hashStr('week-'+weekNumber+'-'+weekMatches.length);
-  const totalGoals = weekMatches.reduce((s,m)=>s+scoreOf(m.team1,m.team2)+scoreOf(m.team2,m.team1),0);
-  const headline = pick([
-    `Week ${weekNumber} in the books — and the standards did not improve`,
-    `Week ${weekNumber} wrapped: some earned it, most just got away with it`,
-    `Week ${weekNumber} review: the good, the ugly, and the frankly average`
-  ], seed);
-  const teaser = topThree[0]
-    ? `${weekMatches.length} match${weekMatches.length===1?'':'es'} played, ${totalGoals} goal${totalGoals===1?'':'s'} scored, and ${topThree[0].name} was the only one who consistently turned up.`
-    : `${weekMatches.length} match${weekMatches.length===1?'':'es'} played this week, and honestly, none of it was worth writing home about.`;
-
-  const story = [];
-  story.push(`Week ${weekNumber} is officially closed: ${weekMatches.length} fixture${weekMatches.length===1?'':'s'} played, ${totalGoals} goal${totalGoals===1?'':'s'} recorded, and the archive is exactly as unforgiving as ever.`);
-
-  if(topThree.length){
-    story.push(`Top of the pile this week: ${topThree.map((p,i)=>`${i+1}. ${p.name} (${p.goals}G ${p.assists}A${p.ratingCount?`, ${(p.ratingSum/p.ratingCount).toFixed(1)} avg`:''})`).join(', ')}. Everyone else made up the numbers.`);
-  } else {
-    story.push(`Nobody did enough this week to justify a top three. That's not a compliment to anyone left off it — it's a criticism of everyone who was eligible.`);
-  }
-
-  if(highestRated.length){
-    story.push(`On raw FC Rating, the standouts among this week's crowd were ${highestRated.map(p=>`${p.name} (${p.rating})`).join(', ')} — the rest still have work to do before their card is worth printing.`);
-  }
-
-  story.push(pick([
-    `Week ${weekNumber}, closed and filed. Week ${weekNumber+1} starts now, and this reporter expects better.`,
-    `That's the week, on the record, no appeals. See everyone next week — try harder.`,
-    `Week ${weekNumber} is locked into Federation history exactly as it happened. No re-writes, no excuses.`
-  ], seed+1));
-
-  return { headline, teaser, story };
-}
-
-function openEndWeekModal(){
-  if(!STATE.admin) return;
-  const pending = getUnloggedMatches();
-  const nextWeek = (STATE.weekLog||[]).length + 1;
-  const root = document.getElementById('modal-root');
-  root.innerHTML = `
-  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
-    <div class="modal">
-      <h3>End Week ${nextWeek}?</h3>
-      <p class="hint">${pending.length===0
-        ? `No new matches have been recorded since the last week ended. Ending the week now will file an empty report.`
-        : `${pending.length} match${pending.length===1?'':'es'} recorded since the last week ended will be sealed into Week ${nextWeek}. The correspondent will file a short recap with the top 3 players of the week and the highest-rated cards among them. This can't be undone.`}</p>
-      <div class="modal-actions">
-        <button class="pill-btn" onclick="closeModal()">Cancel</button>
-        <button class="pill-btn primary" onclick="submitEndWeek()">End Week ${nextWeek}</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-async function submitEndWeek(){
-  if(!STATE.admin) return;
-  const pending = getUnloggedMatches();
-  const weekNumber = (STATE.weekLog||[]).length + 1;
-
-  const weekAgg = computeAggregates(pending).filter(p=>p.matches>0);
-  const topThree = [...weekAgg].sort((a,b)=> bestPlayerScore(b)-bestPlayerScore(a)).slice(0,3);
-
-  const overallAgg = computeAggregates();
-  const participantNames = new Set(weekAgg.map(p=>normalize(p.name)));
-  const highestRated = overallAgg
-    .filter(p=>participantNames.has(normalize(p.name)))
-    .map(p=>({ name:p.name, rating:cardRating(p) }))
-    .sort((a,b)=>b.rating-a.rating)
-    .slice(0,3);
-
-  const totw = computeTOTW(weekAgg);
-
-  const report = generateWeeklyReport(pending, weekNumber, topThree, highestRated);
-  const now = Date.now();
-  const newsItem = {
-    id: 'w_'+now+'_'+Math.random().toString(36).slice(2,7),
-    kind: 'weekly',
-    week: weekNumber,
-    headline: report.headline,
-    teaser: report.teaser,
-    story: report.story,
-    createdAt: now,
-    expiresAt: null,
-    postedBy: STATE.admin.name
-  };
-
-  const backupNews = STATE.news, backupWeekLog = STATE.weekLog;
-  STATE.news = [newsItem, ...(STATE.news||[])];
-  STATE.weekLog = [...(STATE.weekLog||[]), { week:weekNumber, endedAt:now, matchIds: pending.map(m=>m.id), totw }];
-
-  closeModal();
-  const ok1 = await saveNews();
-  const ok2 = await saveWeekLog();
-  if(ok1 && ok2){
-    showToast(`Week ${weekNumber} ended — report filed.`);
-    navigate('home');
-  }else{
-    STATE.news = backupNews;
-    STATE.weekLog = backupWeekLog;
-    showToast('Could not end the week — try again.');
-  }
-}
-
-/* =========================================================
-   Team of the Week (TOTW)
-   ---------------------------------------------------------
-   Computed once, forever, at the moment a week is ended — from
-   that week's matches only. Picks the best GK, best defender,
-   two best midfielders and a best forward using each player's
-   assigned position *category* (a specific position like ST or
-   CDM still maps to FWD/MID/DEF underneath) and their performance
-   in that week alone. The TOTW rating shown on these cards is a
-   separate, boosted "special edition" number for display purposes
-   only — it never touches or overwrites a player's real FC Rating
-   anywhere else in the archive.
-========================================================= */
-const TOTW_FORMATION = [
-  { code:'FWD', label:'Forward',    count:1 },
-  { code:'MID', label:'Midfielder', count:2 },
-  { code:'DEF', label:'Defender',   count:1 },
-  { code:'GK',  label:'Goalkeeper', count:1 }
-];
-
-function computeTOTW(weekAgg){
-  const eligible = weekAgg
-    .filter(p=>p.matches>0)
-    .map(p=>{
-      const norm = normalize(p.name);
-      const posCode = getPlayerPosition(norm);
-      const category = posCode && POSITIONS[posCode] ? POSITIONS[posCode].category : null;
-      return { ...p, norm, position:posCode, category, weekRating:cardRating(p) };
-    })
-    .filter(p=>p.category); // only players with an assigned position can fill a TOTW slot
-
-  const picks = [];
-  const used = new Set();
-  TOTW_FORMATION.forEach(slot=>{
-    const pool = eligible
-      .filter(p=>p.category===slot.code && !used.has(p.norm))
-      .sort((a,b)=> b.weekRating-a.weekRating || (b.goals+b.assists)-(a.goals+a.assists) || b.matches-a.matches);
-    for(let i=0;i<slot.count;i++){
-      const chosen = pool[i];
-      if(!chosen) break;
-      used.add(chosen.norm);
-      picks.push({
-        name: chosen.name,
-        position: chosen.position,
-        category: chosen.category,
-        weekRating: chosen.weekRating,
-        totwRating: Math.min(99, chosen.weekRating + 8),
-        goals: chosen.goals,
-        assists: chosen.assists,
-        saves: chosen.saves,
-        motm: chosen.motm,
-        yellow: chosen.yellow,
-        red: chosen.red,
-        avgRating: chosen.ratingCount ? Number((chosen.ratingSum/chosen.ratingCount).toFixed(1)) : null
-      });
-    }
-  });
-  return picks;
-}
-
-function renderTOTW(param){
-  const weeksWithTotw = (STATE.weekLog||[]).filter(w=>w.totw && w.totw.length);
-  if(weeksWithTotw.length===0){
-    return `
-    <div class="crumbs"><span onclick="navigate('home')">Home</span> / Team of the Week</div>
-    <div class="page-head"><div><h1>🌌 Team of the Week</h1><div class="desc">A special five — best goalkeeper, best defender, two best midfielders and a best forward — picked from that week's matches the moment an admin ends the week.</div></div></div>
-    <div class="empty-state"><div class="ic">🌌</div><b>No Team of the Week yet</b>Once an admin ends the first official week, the standout 5 from those matches will appear here.</div>
-    `;
-  }
-  let weekNumber = Number(param);
-  if(!weekNumber || !weeksWithTotw.find(w=>w.week===weekNumber)){
-    weekNumber = weeksWithTotw[weeksWithTotw.length-1].week;
-  }
-  const weekEntry = weeksWithTotw.find(w=>w.week===weekNumber);
-  const tabs = weeksWithTotw.map(w=>`<button class="pill-btn ${w.week===weekNumber?'primary':''}" onclick="navigate('totw',${w.week})">Week ${w.week}</button>`).join('');
-
-  return `
-  <div class="crumbs"><span onclick="navigate('home')">Home</span> / Team of the Week</div>
-  <div class="page-head"><div><h1>🌌 Team of the Week</h1><div class="desc">The standout 5 from Week ${weekNumber}'s matches. These are special one-off cards for show — the rating on them never changes anyone's real FC Rating anywhere else in the archive.</div></div></div>
-  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px;">${tabs}</div>
-
-  <div class="section-title-row"><h2>Player of the Week</h2>${STATE.admin ? `<span class="view-all" onclick="openSetPOTWModal(${weekNumber})">🗳️ ${weekEntry.potw ? 'Change' : 'Set'} Player of the Week</span>` : ''}</div>
-  ${weekEntry.potw
-    ? `<div class="totw-grid" style="margin-bottom:36px; max-width:280px;">${renderPOTWCard(weekEntry.potw, weekNumber)}</div>`
-    : `<div class="empty-state" style="margin-bottom:36px;"><div class="ic">🗳️</div><b>No Player of the Week set for Week ${weekNumber}</b>Chosen by community vote — once voting closes, an admin enters the winner's name here.</div>`
-  }
-
-  <div class="section-title-row"><h2>Team of the Week</h2></div>
-  <div class="totw-grid">
-    ${weekEntry.totw.map(p=>renderTOTWCard(p, weekNumber)).join('')}
-  </div>
-  `;
-}
-
-function renderTOTWCard(p, weekNumber){
-  const norm = normalize(p.name);
-  const posDisplay = p.position ? p.position : (TOTW_FORMATION.find(f=>f.code===p.category)||{label:p.category}).label;
-  return `
-  <div class="totw-card" onclick="navigate('player','${esc(norm)}')">
-    <div class="totw-top">
-      <div class="totw-rating">${p.totwRating}${ratingBadge(p.totwRating)}<span class="lbl">TOTW</span></div>
-      <div class="totw-position">${esc(posDisplay)}</div>
-    </div>
-    <div class="totw-name">${esc(p.name)}</div>
-    <div class="totw-week-tag">Week ${weekNumber} Special Edition</div>
-    <div class="totw-stats">
-      <div class="totw-stat"><b>${p.goals}</b>Goals</div>
-      <div class="totw-stat"><b>${p.assists}</b>Assists</div>
-      <div class="totw-stat"><b>${p.saves}</b>Saves</div>
-      <div class="totw-stat"><b>${p.avgRating!=null?p.avgRating:'—'}</b>Avg</div>
-    </div>
-    <div class="totw-insight">${totwInsight(p, posDisplay)}</div>
-  </div>
-  `;
-}
-
-function totwInsight(p, posLabel){
-  if(p.motm>0) return `⭐ Man of the Match this week — the standout performer on the pitch.`;
-  if(p.category==='GK' && p.saves>0) return `🧤 ${p.saves} save${p.saves===1?'':'s'} between the posts this week.`;
-  if(p.goals>=3) return `⚽ Hat-trick form this week — nobody could live with it.`;
-  if(p.goals>0 && p.assists>0) return `⚡ A direct hand in ${p.goals+p.assists} goal${p.goals+p.assists===1?'':'s'} this week.`;
-  if(p.goals>0) return `⚽ ${p.goals} goal${p.goals===1?'':'s'} this week alone.`;
-  if(p.assists>0) return `🎯 ${p.assists} assist${p.assists===1?'':'s'} this week alone.`;
-  return `📈 The best week-rated ${String(posLabel).toLowerCase()} on file this week.`;
-}
-
-/* =========================================================
-   Player of the Week (POTW) — a subpart of TOTW.
-   ---------------------------------------------------------
-   Unlike TOTW (fully automatic), POTW is decided by a community
-   vote that happens outside this archive. Once voting closes, an
-   admin simply types the winner's name in against the relevant
-   week and the card generates itself from that week's real stats
-   — same underlying mechanism as TOTW, bigger rating boost, and
-   visually flagged as fan-voted rather than computed.
-========================================================= */
-function computePOTWStats(weekEntry, playerName){
-  const weekMatches = STATE.matches.filter(m=>(weekEntry.matchIds||[]).includes(m.id));
-  const weekAgg = computeAggregates(weekMatches);
-  const norm = normalize(playerName);
-  const found = weekAgg.find(p=>normalize(p.name)===norm);
-  if(!found || found.matches===0) return null;
-  const weekRating = cardRating(found);
-  return {
-    name: found.name,
-    position: getPlayerPosition(norm) || null,
-    weekRating,
-    potwRating: Math.min(99, weekRating + 12),
-    goals: found.goals,
-    assists: found.assists,
-    saves: found.saves,
-    motm: found.motm,
-    yellow: found.yellow,
-    red: found.red,
-    avgRating: found.ratingCount ? Number((found.ratingSum/found.ratingCount).toFixed(1)) : null
-  };
-}
-
-function openSetPOTWModal(weekNumber){
-  if(!STATE.admin) return;
-  const root = document.getElementById('modal-root');
-  root.innerHTML = `
-  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
-    <div class="modal">
-      <h3>Set Player of the Week</h3>
-      <p class="hint">Enter the name the community voted Player of the Week for Week ${weekNumber}. They must have featured in one of that week's matches — the card is generated automatically from their real stats that week.</p>
-      <div class="field"><label>Player name</label><input id="potw-name" type="text" placeholder="e.g. Rohan Mehta" list="playersList"></div>
-      <div id="potw-err"></div>
-      <div class="modal-actions">
-        <button class="pill-btn" onclick="closeModal()">Cancel</button>
-        <button class="pill-btn primary" onclick="submitPOTW(${weekNumber})">Generate POTW Card</button>
-      </div>
-    </div>
-  </div>`;
-  setTimeout(()=>{ const el=document.getElementById('potw-name'); if(el) el.focus(); }, 60);
-}
-
-async function submitPOTW(weekNumber){
-  if(!STATE.admin) return;
-  const errBox = document.getElementById('potw-err');
-  const nameRaw = document.getElementById('potw-name').value.trim();
-  if(!nameRaw){ errBox.innerHTML = `<div class="err-text">Enter a player name.</div>`; return; }
-  const weekEntry = (STATE.weekLog||[]).find(w=>w.week===weekNumber);
-  if(!weekEntry){ errBox.innerHTML = `<div class="err-text">That week no longer exists.</div>`; return; }
-
-  const registry = getAllPlayerNames();
-  const resolved = findCanonical(nameRaw, registry);
-  const canonicalName = resolved.exact || nameRaw;
-
-  const potw = computePOTWStats(weekEntry, canonicalName);
-  if(!potw){ errBox.innerHTML = `<div class="err-text">"${esc(canonicalName)}" didn't feature in Week ${weekNumber}'s matches.</div>`; return; }
-
-  const backup = STATE.weekLog;
-  STATE.weekLog = STATE.weekLog.map(w=> w.week===weekNumber ? { ...w, potw: { ...potw, setBy:STATE.admin.name, setAt:Date.now() } } : w);
-  const ok = await saveWeekLog();
-  if(ok){
-    closeModal();
-    showToast(`${potw.name} crowned Player of the Week ${weekNumber}.`);
-    navigate('totw', weekNumber);
-  }else{
-    STATE.weekLog = backup;
-    errBox.innerHTML = `<div class="err-text">Could not save — try again.</div>`;
-  }
-}
-
-function renderPOTWCard(potw, weekNumber){
-  const posLabel = potw.position ? potw.position : 'Unassigned';
-  return `
-  <div class="totw-card potw-card" onclick="navigate('player','${esc(normalize(potw.name))}')">
-    <div class="potw-ribbon">🗳️ Player of the Week</div>
-    <div class="totw-top">
-      <div class="totw-rating potw-rating">${potw.potwRating}${ratingBadge(potw.potwRating)}<span class="lbl">POTW</span></div>
-      <div class="totw-position">${esc(posLabel)}</div>
-    </div>
-    <div class="totw-name">${esc(potw.name)}</div>
-    <div class="totw-week-tag">Week ${weekNumber} · Chosen by fan vote</div>
-    <div class="totw-stats">
-      <div class="totw-stat"><b>${potw.goals}</b>Goals</div>
-      <div class="totw-stat"><b>${potw.assists}</b>Assists</div>
-      <div class="totw-stat"><b>${potw.saves}</b>Saves</div>
-      <div class="totw-stat"><b>${potw.avgRating!=null?potw.avgRating:'—'}</b>Avg</div>
-    </div>
-    <div class="totw-insight">👑 The best player of Week ${weekNumber}</div>
-  </div>
-  `;
-}
-
-/* All-time TOTW/POTW history for one player's profile — every card
-   they've ever earned, pulled straight from the permanent weekLog
-   snapshots (never recomputed, so history never changes after the
-   fact even if positions or stats are edited later). */
-function renderTOTWHistorySection(normName){
-  const totwWins = [];
-  let potwWins = [];
-  (STATE.weekLog||[]).forEach(w=>{
-    (w.totw||[]).forEach(p=>{ if(normalize(p.name)===normName) totwWins.push({ ...p, week:w.week }); });
-    if(w.potw && normalize(w.potw.name)===normName) potwWins.push({ ...w.potw, week:w.week });
-  });
-  if(totwWins.length===0 && potwWins.length===0) return '';
-  totwWins.sort((a,b)=>b.week-a.week);
-  potwWins.sort((a,b)=>b.week-a.week);
-  return `
-  <div class="section-title-row"><h2>🌌 TOTW &amp; POTW History</h2></div>
-  <div class="lb-meta" style="margin:-8px 0 16px;">${potwWins.length} Player of the Week card${potwWins.length===1?'':'s'} · ${totwWins.length} Team of the Week card${totwWins.length===1?'':'s'}</div>
-  <div class="totw-grid" style="margin-bottom:34px;">
-    ${potwWins.map(p=>renderPOTWCard(p, p.week)).join('')}
-    ${totwWins.map(p=>renderTOTWCard(p, p.week)).join('')}
-  </div>
-  `;
-}
 
 /* =========================================================
    Router / navigation
 ========================================================= */
 let CURRENT = { view:'home', param:null };
 
+// Which season each page is currently showing. Stats leaderboards default
+// to the live/current season (so they "reset to 0" the moment a season
+// ends); a player's own profile defaults to All-Time. Both can be flipped
+// to any specific past season. Neither of these ever touches FC Rating,
+// which is always computed from the player's entire match history.
+let statsSeasonFilter = 'current';
+let profileSeasonFilter = 'all';
+
 function navigate(view, param){
   CURRENT = { view, param };
+  if(view==='stats') statsSeasonFilter = 'current';
+  if(view==='player') profileSeasonFilter = 'all';
+  closeStatsDropdown();
   render();
   window.scrollTo({top:0, behavior:'smooth'});
 }
+function setStatsSeason(val){
+  statsSeasonFilter = val;
+  render();
+}
+function setProfileSeason(val){
+  profileSeasonFilter = val;
+  render();
+}
+
+// Tap-friendly Stats dropdown — the CSS :hover rule covers desktop,
+// this covers mobile/touch, where there's no hover to trigger it.
+function toggleStatsDropdown(e){
+  e.stopPropagation();
+  const g = document.getElementById('stats-navgroup');
+  if(!g) return;
+  g.classList.toggle('open');
+}
+function closeStatsDropdown(){
+  const g = document.getElementById('stats-navgroup');
+  if(g) g.classList.remove('open');
+}
+document.addEventListener('click', (e)=>{
+  const g = document.getElementById('stats-navgroup');
+  if(g && !g.contains(e.target)) g.classList.remove('open');
+});
 
 function render(){
   const app = document.getElementById('app');
-  const old = app.firstElementChild;
-  const html = renderView(CURRENT.view, CURRENT.param);
+  let html;
+  try{
+    html = renderView(CURRENT.view, CURRENT.param);
+  }catch(e){
+    console.error('render error for view', CURRENT.view, CURRENT.param, e);
+    html = `<div style="max-width:560px;margin:80px auto;padding:28px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);text-align:center;">
+      <div style="font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--red);margin-bottom:10px;">Something went wrong showing this page</div>
+      <div style="color:var(--muted);font-family:var(--body);font-size:14px;line-height:1.6;margin-bottom:6px;">${esc(e.message)}</div>
+      <div style="margin-top:18px;"><button class="pill-btn primary" onclick="navigate('home')">Back to Home</button></div>
+    </div>`;
+  }
   const wrap = document.createElement('div');
   wrap.className = 'view';
   wrap.innerHTML = html;
@@ -2239,7 +1532,6 @@ function render(){
 function updateActiveNav(){
   document.getElementById('nav-records').classList.toggle('active', CURRENT.view==='records' || CURRENT.view==='match' || CURRENT.view==='addmatch');
   document.getElementById('nav-players').classList.toggle('active', CURRENT.view==='players' || CURRENT.view==='player');
-  document.getElementById('nav-totw').classList.toggle('active', CURRENT.view==='totw');
 }
 
 function animateBars(){
@@ -2286,7 +1578,6 @@ function renderView(view, param){
     case 'match': return renderMatchDetail(param);
     case 'addmatch': return renderAddMatch(param);
     case 'stats': return renderStats(param);
-    case 'totw': return renderTOTW(param);
     case 'players': return renderPlayersRegistry();
     case 'player': return renderPlayerProfile(param);
     case 'adminlog': return renderAdminLog();
@@ -2295,98 +1586,6 @@ function renderView(view, param){
   }
 }
 
-/* ---------- Federation News (home page) ---------- */
-let NEWS_CACHE = {};
-
-function renderNewsSection(){
-  const active = getActiveNews();
-  const isAuto = active.length===0;
-  const items = isAuto ? [generateAutoNews()] : active;
-  NEWS_CACHE = {};
-  const keyed = items.map((n,i)=>{
-    const key = isAuto ? ('auto-'+i) : n.id;
-    NEWS_CACHE[key] = n;
-    return { n, key };
-  });
-  return `
-  <section class="section-news">
-    <div class="section-title-row">
-      <h2><span class="dot" style="display:inline-block; margin-right:8px;"></span>Federation News</h2>
-      ${STATE.admin ? `<span style="display:flex; gap:16px; flex-wrap:wrap;"><span class="view-all" onclick="openNewsModal()">+ Post News</span><span class="view-all" onclick="openEndWeekModal()" style="color:var(--crimson);">🏁 End Week</span><span class="view-all" onclick="resetNewsFeed()" style="color:var(--red);">🗞 Reset News</span><span class="view-all" onclick="resetWeekLog()" style="color:var(--red);">⚠ Reset Week</span></span>` : ''}
-    </div>
-    <div class="gazette-masthead">
-      <div class="gm-top"><span>Est. 2024</span><span>${formatDate(new Date().toISOString().slice(0,10))}</span><span>No Bias, No Mercy</span></div>
-      <div class="gm-name">The Gardens Gazette</div>
-      <div class="gm-tagline">"Official Record of the Gardens Football Federation — Every Result, Every Reputation, On the Record"</div>
-      <div class="gm-rule"></div>
-    </div>
-    <div class="news-feed">
-      ${keyed.map(({n,key}, i)=>renderNewsCard(n, isAuto || n.kind==='weekly', i===0, key)).join('')}
-    </div>
-  </section>
-  `;
-}
-
-function renderNewsCard(n, correspondentStyle, featured, key){
-  if(correspondentStyle){
-    return `
-    <div class="news-card correspondent ${featured?'featured':''}" onclick="openNewsDetail('${key}')">
-      <div class="news-byline">
-        <div class="news-avatar">${NEWS_CORRESPONDENT.initials}</div>
-        <div>
-          <div class="news-byline-name">By ${esc(NEWS_CORRESPONDENT.name)}</div>
-          <div class="news-byline-role">${esc(n.kind==='weekly' ? `Week ${n.week} Report` : NEWS_CORRESPONDENT.role)}</div>
-        </div>
-      </div>
-      <div class="news-headline">${esc(n.headline)}</div>
-      <div class="news-quote"><span class="news-quote-mark">“</span>${esc(n.teaser)}</div>
-      <div class="news-meta">${n.kind==='weekly' ? `Filed ${formatDate(new Date(n.createdAt).toISOString().slice(0,10))}` : 'Filed by the newsroom'} · Tap to read the full story</div>
-    </div>
-    `;
-  }
-  const meta = `Visible until ${formatDate(new Date(n.expiresAt).toISOString().slice(0,10))}${n.postedBy ? ' · posted by '+esc(n.postedBy) : ''}`;
-  return `
-  <div class="news-card ${featured?'featured':''}" onclick="openNewsDetail('${key}')">
-    <div class="news-card-top">
-      <span class="news-tag">FEDERATION ANNOUNCEMENT</span>
-      ${STATE.admin ? `<button class="news-remove" onclick="event.stopPropagation(); deleteNews('${n.id}')" title="Remove this announcement">✕</button>` : ''}
-    </div>
-    <div class="news-headline">${esc(n.headline)}</div>
-    <div class="news-body">${esc(n.body)}</div>
-    <div class="news-meta">${meta}</div>
-  </div>
-  `;
-}
-
-function openNewsDetail(key){
-  const n = NEWS_CACHE[key];
-  if(!n) return;
-  const isAuto = key.indexOf('auto-')===0;
-  const correspondentStyle = isAuto || n.kind==='weekly';
-  const root = document.getElementById('modal-root');
-  const storyHtml = correspondentStyle
-    ? n.story.map(p=>`<p>${esc(p)}</p>`).join('')
-    : `<p>${esc(n.body)}</p>`;
-  root.innerHTML = `
-  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
-    <div class="modal news-modal">
-      ${correspondentStyle ? `
-        <div class="news-byline">
-          <div class="news-avatar lg">${NEWS_CORRESPONDENT.initials}</div>
-          <div>
-            <div class="news-byline-name">By ${esc(NEWS_CORRESPONDENT.name)}</div>
-            <div class="news-byline-role">${esc(n.kind==='weekly' ? `Week ${n.week} Report` : NEWS_CORRESPONDENT.role)}</div>
-          </div>
-        </div>
-      ` : `<span class="news-tag">FEDERATION ANNOUNCEMENT</span>`}
-      <h3 style="margin-top:14px;">${esc(n.headline)}</h3>
-      <div class="news-modal-body">${storyHtml}</div>
-      <div class="modal-actions">
-        <button class="pill-btn primary" onclick="closeModal()">Close</button>
-      </div>
-    </div>
-  </div>`;
-}
 
 function renderHome(){
   const totalMatches = STATE.matches.length;
@@ -2578,8 +1777,6 @@ function renderHome(){
     </div>
   </section>
 
-  ${renderNewsSection()}
-
   <div class="turf-divider"><svg viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M0,40 L0,20 L40,28 L80,12 L120,26 L160,10 L200,24 L240,8 L280,22 L320,12 L360,26 L400,10 L440,24 L480,14 L520,28 L560,12 L600,22 L640,8 L680,24 L720,12 L760,26 L800,10 L840,24 L880,14 L920,28 L960,12 L1000,22 L1040,8 L1080,24 L1120,12 L1160,26 L1200,18 L1200,40 Z" fill="var(--surface)"/>
   </svg></div>
@@ -2597,24 +1794,33 @@ function renderHome(){
 /* Football-card style registry, shared by the home preview and the full Players Registered page.
    prefix distinguishes DOM ids so the home section and the full page can coexist without collisions. */
 function renderPlayerCardsSection(prefix){
-  const agg = computeAggregates()
+  // FC Rating always comes from the player's ENTIRE match history, every
+  // season combined — ending a season never resets or recalculates it.
+  // Only the little stat row on the card (matches/goals/assists/MOTM)
+  // reflects the current season, same as the leaderboards.
+  const allTimeAgg = computeAggregates()
     .map(p=>{ p.rating = cardRating(p); return p; })
     .sort((a,b)=> b.rating-a.rating || a.name.localeCompare(b.name));
-  if(agg.length===0){
+  if(allTimeAgg.length===0){
     return `<div class="empty-state"><div class="ic">🪪</div><b>No players registered yet</b>Players are added to this directory automatically the first time they appear in a saved match.</div>`;
   }
+  const seasonAggMap = new Map(computeAggregates(seasonMatchList(STATE.seasonMeta.current)).map(p=>[normalize(p.name), p]));
   return `
     <div class="player-search"><input type="text" id="${prefix}-player-search-input" placeholder="Search registered players…" oninput="filterPlayerDirectory(this.value,'${prefix}')"></div>
     <div class="roster-directory" id="${prefix}-player-directory">
-      ${agg.map(p=>renderFootballCard(p)).join('')}
+      ${allTimeAgg.map(p=>renderFootballCard(p, seasonAggMap.get(normalize(p.name)))).join('')}
     </div>
     <div id="${prefix}-player-directory-empty" class="empty-state hidden" style="margin-top:16px;"><div class="ic">🔍</div><b>No matches for that search</b>Try a different name.</div>
   `;
 }
 
-function renderFootballCard(p){
-  const norm = normalize(p.name);
-  const rating = cardRating(p);
+function renderFootballCard(allTimeP, seasonP){
+  // seasonP is the player's current-season-only stat line, used for the
+  // little stat row. A player with zero appearances yet this season still
+  // keeps their card (and their all-time rating) — the row just reads 0.
+  seasonP = seasonP || { matches:0, goals:0, assists:0, motm:0 };
+  const norm = normalize(allTimeP.name);
+  const rating = cardRating(allTimeP);
   const tier = ratingTier(rating);
   const pos = getPlayerPosition(norm);
   const posLabel = pos ? pos : '—';
@@ -2623,7 +1829,7 @@ function renderFootballCard(p){
     <div class="pc-position-edit" onclick="event.stopPropagation()">
       <select onchange="setPlayerPosition('${esc(norm)}', this)">
         <option value="">Set position…</option>
-        ${positionOptionsHTML(pos)}
+        ${Object.keys(POSITIONS).map(code=>`<option value="${code}" ${pos===code?'selected':''}>${code} · ${POSITIONS[code].label}</option>`).join('')}
       </select>
     </div>` : '';
   return `
@@ -2636,14 +1842,15 @@ function renderFootballCard(p){
           <div class="pc-tier">${tier.name}</div>
         </div>
       </div>
-      <div class="pc-id">FILE #${(p.name.length*7 + p.matches).toString().padStart(4,'0')}</div>
-      <div class="pc-name">${esc(p.name)}</div>
+      <div class="pc-id">FILE #${(allTimeP.name.length*7 + allTimeP.matches).toString().padStart(4,'0')}</div>
+      <div class="pc-name">${esc(allTimeP.name)}</div>
       <div class="pc-stats">
-        <div class="pc-stat"><b>${p.matches}</b>Matches</div>
-        <div class="pc-stat"><b>${p.goals}</b>Goals</div>
-        <div class="pc-stat"><b>${p.assists}</b>Assists</div>
-        <div class="pc-stat"><b>${p.motm}</b>MOTM</div>
+        <div class="pc-stat"><b>${seasonP.matches}</b>Matches</div>
+        <div class="pc-stat"><b>${seasonP.goals}</b>Goals</div>
+        <div class="pc-stat"><b>${seasonP.assists}</b>Assists</div>
+        <div class="pc-stat"><b>${seasonP.motm}</b>MOTM</div>
       </div>
+      <div class="pc-season-tag">SEASON ${STATE.seasonMeta.current}</div>
       ${positionEditor}
     </div>
   `;
@@ -2800,12 +2007,21 @@ function filterPlayerDirectory(q, prefix){
 }
 
 function renderPlayerProfile(normName){
-  const agg = computeAggregates();
-  const p = agg.find(x=>normalize(x.name)===normName);
-  if(!p){
+  // FC Rating (and tier, and market value) is always computed from the
+  // player's ENTIRE match history — ending a season never touches it.
+  const allTimeAgg = computeAggregates();
+  const ratingP = allTimeAgg.find(x=>normalize(x.name)===normName);
+  if(!ratingP){
     return `<div class="empty-state"><div class="ic">❓</div><b>Player not found</b>They may not be registered yet.<div style="margin-top:16px;"><button class="pill-btn" onclick="navigate('players')">Back to directory</button></div></div>`;
   }
-  const history = getPlayerHistory(normName);
+  // Everything else on the page (the stat grid, W/D/L record, match
+  // history, season highlights) follows the chosen season tab — "All-Time"
+  // by default, or any single season.
+  const seasonSel = profileSeasonFilter || 'all';
+  const matchList = resolveSeasonMatchList(seasonSel);
+  const seasonAgg = computeAggregates(matchList);
+  const p = seasonAgg.find(x=>normalize(x.name)===normName) || { name:ratingP.name, goals:0, assists:0, saves:0, yellow:0, red:0, motm:0, matches:0, ratingSum:0, ratingCount:0 };
+  const history = getPlayerHistory(normName, matchList);
   const record = history.reduce((r,h)=>{
     if(h.ownScore > h.oppScore) r.wins++;
     else if(h.ownScore < h.oppScore) r.losses++;
@@ -2813,21 +2029,22 @@ function renderPlayerProfile(normName){
     return r;
   }, { wins:0, draws:0, losses:0 });
   const avgRating = p.ratingCount ? (p.ratingSum/p.ratingCount).toFixed(1) : '—';
-  const rating = cardRating(p);
+  const rating = cardRating(ratingP);
   const tier = ratingTier(rating);
   const pos = getPlayerPosition(normName);
+  const seasonLabel = seasonSel==='all' ? 'All-Time' : seasonSel==='current' ? `Season ${STATE.seasonMeta.current} (current)` : `Season ${seasonSel}`;
   return `
-  <div class="crumbs"><span onclick="navigate('home')">Home</span> / <span onclick="navigate('players')">Players Registered</span> / ${esc(p.name)}</div>
+  <div class="crumbs"><span onclick="navigate('home')">Home</span> / <span onclick="navigate('players')">Players Registered</span> / ${esc(ratingP.name)}</div>
 
   <div class="player-profile-head">
-    <div class="pp-avatar" style="border-color:${tier.border};color:${tier.accent};">${esc(p.name.trim().charAt(0).toUpperCase() || '?')}</div>
+    <div class="pp-avatar" style="border-color:${tier.border};color:${tier.accent};">${esc(ratingP.name.trim().charAt(0).toUpperCase() || '?')}</div>
     <div style="flex:1;">
-      <div class="pp-name">${esc(p.name)}</div>
-      <div class="pp-tag">Registered player · Gardens Football Federation · Est. 2024${pos?` · ${POSITIONS[pos]?POSITIONS[pos].label:pos} (${pos})`:''}</div>
-      ${STATE.admin ? `<div style="margin-top:10px; max-width:260px;" onclick="event.stopPropagation()">
+      <div class="pp-name">${esc(ratingP.name)}</div>
+      <div class="pp-tag">Registered player · Gardens Football Federation · Est. 2024${pos?` · ${(POSITIONS[pos]&&POSITIONS[pos].label)||pos}`:''}</div>
+      ${STATE.admin ? `<div style="margin-top:10px; max-width:220px;" onclick="event.stopPropagation()">
         <select class="pc-position-edit-inline" onchange="setPlayerPosition('${esc(normName)}', this).then(()=>navigate('player','${esc(normName)}'))" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--chalk);font-family:var(--mono);font-size:10.5px;padding:8px 10px;border-radius:8px;outline:none;text-transform:uppercase;">
           <option value="">Set position…</option>
-          ${positionOptionsHTML(pos)}
+          ${Object.keys(POSITIONS).map(code=>`<option value="${code}" ${pos===code?'selected':''}>${code} · ${POSITIONS[code].label}</option>`).join('')}
         </select>
       </div>` : ''}
     </div>
@@ -2836,6 +2053,9 @@ function renderPlayerProfile(normName){
       <div style="font-family:var(--mono); font-size:9px; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase;">FC Rating · ${tier.name}</div>
     </div>
   </div>
+
+  <div class="section-title-row" style="margin-top:28px;"><h2>Stats — ${esc(seasonLabel)}</h2></div>
+  ${renderSeasonTabs(seasonSel, 'setProfileSeason', true)}
 
   <div class="pp-stat-grid">
     <div class="pp-stat-card"><div class="v">${p.matches}</div><div class="l">Matches</div></div>
@@ -2848,17 +2068,15 @@ function renderPlayerProfile(normName){
     <div class="pp-stat-card"><div class="v">${avgRating}</div><div class="l">Avg Rating</div></div>
   </div>
 
-  ${renderPlayerDetailsSection(normName, record, p)}
+  ${renderPlayerDetailsSection(normName, record, ratingP)}
 
   ${renderTrophySection(normName)}
 
-  ${renderSeasonHighlights(normName)}
+  ${renderSeasonHighlights(normName, matchList)}
 
-  ${renderTOTWHistorySection(normName)}
-
-  <div class="section-title-row"><h2>Match History</h2></div>
+  <div class="section-title-row"><h2>Match History — ${esc(seasonLabel)}</h2></div>
   <div>
-    ${history.map(h=>`
+    ${history.length===0 ? `<div class="empty-state"><div class="ic">📜</div><b>No matches in ${esc(seasonLabel)}</b>${seasonSel==='all' ? 'This player hasn’t featured in a saved match yet.' : 'This player didn’t feature during this season.'}</div>` : history.map(h=>`
       <div class="pp-history-row" onclick="navigate('match','${h.match.id}')">
         <span class="h-date">${formatDate(h.match.date)}</span>
         <span class="h-fmt">${h.match.format.toUpperCase()}</span>
@@ -2996,7 +2214,9 @@ const STAT_DEFS = {
 function renderStats(kind){
   if(!STAT_DEFS[kind]) kind='topscorers';
   const def = STAT_DEFS[kind];
-  let agg = computeAggregates();
+  const seasonSel = statsSeasonFilter || 'current';
+  const matchList = resolveSeasonMatchList(seasonSel);
+  let agg = computeAggregates(matchList);
   if(kind==='bestplayer'){
     agg = agg.map(p=>{ p.bpScore = bestPlayerScore(p); return p; }).filter(p=>p.bpScore > 0);
     agg.sort((a,b)=> b.bpScore-a.bpScore || (b.goals+b.assists)-(a.goals+a.assists) || b.matches-a.matches);
@@ -3008,19 +2228,21 @@ function renderStats(kind){
   const max = agg.length ? agg[0][def.field] : 1;
 
   const tabs = Object.keys(STAT_DEFS).map(k=>`<button class="pill-btn ${k===kind?'primary':''}" onclick="navigate('stats','${k}')">${STAT_DEFS[k].title}</button>`).join('');
+  const seasonLabel = seasonSel==='current' ? `Season ${STATE.seasonMeta.current} (current)` : seasonSel==='all' ? 'All-Time' : `Season ${seasonSel}`;
 
   return `
   <div class="crumbs"><span onclick="navigate('home')">Home</span> / Stats / ${def.title}</div>
   <div class="page-head">
-    <div><h1>${def.title}</h1><div class="desc">${def.desc}${kind==='bestplayer' ? ' Top 10 shown.' : ''}</div></div>
+    <div><h1>${def.title}</h1><div class="desc">${def.desc}${kind==='bestplayer' ? ' Top 10 shown.' : ''} Showing ${esc(seasonLabel)}.</div></div>
   </div>
-  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px;">${tabs}</div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">${tabs}</div>
+  ${renderSeasonTabs(seasonSel, 'setStatsSeason', true)}
 
-  ${agg.length===0 ? `<div class="empty-state"><div class="ic">📊</div><b>No data yet</b>This leaderboard fills in once matches record ${kind==='bestplayer' ? 'enough appearances and contributions' : def.unit.toLowerCase()}.</div>` : `
+  ${agg.length===0 ? `<div class="empty-state"><div class="ic">📊</div><b>No data yet for ${esc(seasonLabel)}</b>This leaderboard fills in once matches in this season record ${kind==='bestplayer' ? 'enough appearances and contributions' : def.unit.toLowerCase()}.</div>` : `
     <div class="lb-list">
       ${agg.map((p,i)=>{
         const posCode = kind==='bestplayer' ? getPlayerPosition(normalize(p.name)) : null;
-        const posLabel = posCode ? `${posCode} · ${POSITIONS[posCode]?POSITIONS[posCode].label:''}` : 'Position not set';
+        const posLabel = posCode ? ((POSITIONS[posCode]&&POSITIONS[posCode].label)||posCode) : 'Position not set';
         return `
         <div class="lb-row ${def.cls} ${i===0?'top1':i===1?'top2':i===2?'top3':''}">
           <div class="lb-rank">${i+1}</div>
@@ -3041,7 +2263,6 @@ function renderAdminLog(){
     return `<div class="empty-state"><div class="ic">🔒</div><b>Admin access required</b>Log in to view the admin login history.<div style="margin-top:16px;"><button class="pill-btn primary" onclick="openLoginModal()">Admin Login</button></div></div>`;
   }
   const rows = STATE.loginHistory;
-  const weekCount = (STATE.weekLog||[]).length;
   return `
   <div class="crumbs"><span onclick="navigate('home')">Home</span> / Admin Login History</div>
   <div class="page-head">
@@ -3060,44 +2281,71 @@ function renderAdminLog(){
     </div>
   `}
 
-  <div class="section-title-row" style="margin-top:40px;"><h2 style="color:var(--red);">⚠ Danger Zone</h2></div>
-  <div class="empty-state" style="border-color:rgba(229,72,77,.35); text-align:left; padding:22px 26px; margin-bottom:16px;">
-    <b style="margin-bottom:8px;">Reset Federation News</b>
-    <span style="display:block; color:var(--muted); margin-bottom:16px;">Clears every posted announcement and weekly report from the news feed — use this for a clean new-season start. Matches are untouched; the correspondent will start writing fresh recaps as new matches are saved.</span>
-    <button class="pill-btn btn-danger-outline" onclick="resetNewsFeed()">Reset News Feed</button>
-  </div>
-  <div class="empty-state" style="border-color:rgba(229,72,77,.35); text-align:left; padding:22px 26px;">
-    <b style="margin-bottom:8px;">Reset Week Log</b>
-    <span style="display:block; color:var(--muted); margin-bottom:16px;">Currently at Week ${weekCount} (${weekCount} week${weekCount===1?'':'s'} ended). This clears the week counter and every Team of the Week / Player of the Week card back to zero, so the next "End Week" becomes Week 1 again. Every match already in the archive is untouched — only the week grouping and TOTW/POTW history reset.</span>
-    <button class="pill-btn btn-danger-outline" onclick="resetWeekLog()">Reset Week Log to 0</button>
-  </div>
+  ${renderSeasonManagementSection()}
   `;
 }
-async function resetWeekLog(){
-  if(!STATE.admin) return;
-  if(!confirm('Reset the week counter to 0? This clears every Team of the Week and Player of the Week card. Matches themselves are not affected. This cannot be undone.')) return;
-  const backup = STATE.weekLog;
-  STATE.weekLog = [];
-  const ok = await saveWeekLog();
-  if(ok){
-    showToast('Week log reset — next "End Week" will be Week 1.');
-    navigate('adminlog');
-  }else{
-    STATE.weekLog = backup;
-  }
+
+/* ---------- Season management (admin-only) ---------- */
+function renderSeasonManagementSection(){
+  const history = STATE.seasonMeta.history.slice().sort((a,b)=>b.number-a.number);
+  return `
+  <div class="section-title-row" style="margin-top:40px;"><h2>🗓 Season Management</h2></div>
+  <div class="empty-state" style="border-color:var(--line); text-align:left; padding:22px 26px; margin-bottom:16px;">
+    <b style="margin-bottom:8px;">Currently in Season ${STATE.seasonMeta.current}</b>
+    <span style="display:block; color:var(--muted); margin-bottom:16px;">Ending the season resets every stats leaderboard and every player card's visible stat row to zero for Season ${STATE.seasonMeta.current+1} — older seasons stay permanently accessible from the season tabs on the Stats page and on every player's profile. FC Rating is never affected: it always carries forward from a player's full match history.</span>
+    <button class="pill-btn btn-danger-outline" onclick="openEndSeasonModal()">End Season ${STATE.seasonMeta.current}</button>
+  </div>
+  ${history.length ? `
+  <div class="history-list">
+    ${history.map(s=>`<div class="history-row">
+      <span class="hr-dot"></span>
+      <span class="hr-name">Season ${s.number}</span>
+      <span class="hr-time">${formatDate(s.startDate)} – ${formatDate(s.endDate)}</span>
+    </div>`).join('')}
+  </div>` : ''}
+  `;
 }
 
-async function resetNewsFeed(){
+function openEndSeasonModal(){
   if(!STATE.admin) return;
-  if(!confirm('Clear the entire Federation News feed? This removes every posted announcement and weekly report — a fresh new season starts with a blank newsroom. Matches themselves are not affected. This cannot be undone.')) return;
-  const backup = STATE.news;
-  STATE.news = [];
-  const ok = await saveNews();
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>End Season ${STATE.seasonMeta.current}</h3>
+      <p class="hint">Enter when Season ${STATE.seasonMeta.current} ran. This only labels the season for the record — every match already saved stays exactly where it is. Once confirmed, Season ${STATE.seasonMeta.current+1} begins immediately: leaderboards and player-card stat rows reset to zero, but Season ${STATE.seasonMeta.current} remains fully browsable, and no player's FC Rating changes.</p>
+      <div class="field"><label>Season started</label><input id="season-start-date" type="date"></div>
+      <div class="field"><label>Season ended</label><input id="season-end-date" type="date"></div>
+      <div id="season-end-err"></div>
+      <div class="modal-actions">
+        <button class="pill-btn" onclick="closeModal()">Cancel</button>
+        <button class="pill-btn primary" onclick="submitEndSeason()">End Season ${STATE.seasonMeta.current}</button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>{ const el = document.getElementById('season-start-date'); if(el) el.focus(); }, 60);
+}
+
+async function submitEndSeason(){
+  if(!STATE.admin) return;
+  const errBox = document.getElementById('season-end-err');
+  const start = document.getElementById('season-start-date').value;
+  const end = document.getElementById('season-end-date').value;
+  if(!start || !end){ errBox.innerHTML = `<div class="err-text">Enter both a start and an end date.</div>`; return; }
+  if(end < start){ errBox.innerHTML = `<div class="err-text">The end date can't be before the start date.</div>`; return; }
+  const endingNumber = STATE.seasonMeta.current;
+  if(!confirm(`End Season ${endingNumber} and start Season ${endingNumber+1}? Leaderboards and player-card stats reset to zero for the new season. Season ${endingNumber} stays fully accessible. This cannot be undone.`)) return;
+
+  const backup = JSON.parse(JSON.stringify(STATE.seasonMeta));
+  STATE.seasonMeta.history.push({ number: endingNumber, startDate: start, endDate: end, endedAt: Date.now() });
+  STATE.seasonMeta.current = endingNumber + 1;
+  const ok = await saveSeasonMeta();
   if(ok){
-    showToast('News feed reset for the new season.');
-    navigate('home');
+    showToast(`Season ${endingNumber} ended. Season ${STATE.seasonMeta.current} is now underway.`);
+    closeModal();
+    navigate('adminlog');
   }else{
-    STATE.news = backup;
+    STATE.seasonMeta = backup;
   }
 }
 
@@ -3148,11 +2396,11 @@ function renderPatchNotes(){
   const entries = [
     {
       version:'v2.2',
-      title:'Full FC-Style Position System',
+      title:'Federation News, TOTW & POTW Removed',
       items:[
-        'Expanded player positions from four broad roles to fifteen specific ones: GK, CB, LB, RB, LWB, RWB, CDM, CM, CAM, LM, RM, LW, RW, CF, ST.',
-        'Position pickers now group choices under Goalkeeper / Defenders / Midfielders / Forwards so the longer list stays easy to scan.',
-        'Team of the Week still works exactly as before — it picks by broad category underneath the specific position, so a CDM or CB or a ST can all still fill their category\u2019s TOTW slot.'
+        'Federation News (the Gazette newspaper feed, auto-generated recaps, and admin-posted announcements) has been fully removed from the archive.',
+        'Team of the Week and Player of the Week — including their special cards, weekly "End Week" tool and per-player history sections — have been fully removed.',
+        'Player profiles and the main navigation have been simplified accordingly. Every match result already on record is untouched.'
       ]
     },
     {
@@ -3298,39 +2546,6 @@ function adminLogout(){
   renderTopbarRight();
   if(CURRENT.view==='addmatch') navigate('home');
   showToast('Logged out of admin mode.');
-}
-
-/* =========================================================
-   Federation News — admin "post news" modal
-========================================================= */
-function openNewsModal(){
-  if(!STATE.admin) return;
-  const root = document.getElementById('modal-root');
-  root.innerHTML = `
-  <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
-    <div class="modal">
-      <h3>Post Federation News</h3>
-      <p class="hint">Write an announcement for the home page. Choose how long it stays visible — once it expires, the auto-generated recap resumes on its own.</p>
-      <div class="field"><label>Headline</label><input id="news-headline" type="text" placeholder="e.g. Season 3 kicks off next week"></div>
-      <div class="field"><label>Details</label><textarea id="news-body" rows="4" placeholder="Write the announcement…"></textarea></div>
-      <div class="field">
-        <label>Visible for</label>
-        <div style="display:flex; gap:10px;">
-          <input id="news-duration" type="number" min="1" value="7" style="flex:1;">
-          <select id="news-unit" style="flex:1;">
-            <option value="days">Day(s)</option>
-            <option value="months">Month(s)</option>
-          </select>
-        </div>
-      </div>
-      <div id="news-err"></div>
-      <div class="modal-actions">
-        <button class="pill-btn" onclick="closeModal()">Cancel</button>
-        <button class="pill-btn primary" onclick="submitNews()">Post News</button>
-      </div>
-    </div>
-  </div>`;
-  setTimeout(()=>{ const el = document.getElementById('news-headline'); if(el) el.focus(); }, 60);
 }
 
 /* =========================================================
@@ -3674,6 +2889,7 @@ async function submitMatch(fmt){
     format: fmt,
     date,
     createdAt: Date.now(),
+    season: STATE.seasonMeta.current,
     team1: { name:'Team 1', players:allT1, extraGoals:eg1, cleanSheet:cs1, cleanSheetPlayers:cs1Players },
     team2: { name:'Team 2', players:allT2, extraGoals:eg2, cleanSheet:cs2, cleanSheetPlayers:cs2Players },
     motm: motm || null,
