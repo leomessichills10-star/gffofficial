@@ -689,7 +689,7 @@ body{ background:
 .pc-skill b{ display:block; font:800 14px/1.1 var(--display); color:var(--ta); letter-spacing:0; }
 
 /* ---- add-match: position + x/y fields ---- */
-.player-row .pos-wrap, .player-row .pair-wrap{ grid-column:span 2; min-width:0; }
+.player-row .pos-wrap, .player-row .pair-wrap, .player-row .bc-wrap{ grid-column:span 2; min-width:0; }
 .player-row select{ width:100%; background:var(--court); border:1px solid var(--line); color:var(--chalk); border-radius:8px; padding:8px 4px; font:inherit; font-size:13px; color-scheme:dark; }
 .player-row select:focus{ outline:none; border-color:var(--ball); box-shadow:0 0 0 3px var(--ball-soft); }
 .player-row .pair{ display:flex; align-items:center; gap:3px; }
@@ -716,10 +716,10 @@ body{ background:
 .mpc-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:14px; }
 .mpc-tags span{ font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:999px; background:rgba(255,255,255,.1); color:var(--chalk); }
 .mpc-tags span.bad{ background:rgba(240,82,79,.2); color:#FFB3B1; }
-.mpc-hero{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0 10px; }
+.mpc-hero{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0 10px; }
 .mpc-hero div{ text-align:center; padding:14px 6px 10px; border-radius:16px; background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.09); }
-.mpc-hero b{ display:block; font:900 58px/.9 var(--display); color:var(--ta); }
-.mpc-hero span{ font-size:12.5px; color:var(--chalk-2); }
+.mpc-hero b{ display:block; font:900 50px/.9 var(--display); color:var(--ta); }
+.mpc-hero span{ font-size:12px; line-height:1.2; color:var(--chalk-2); display:block; margin-top:3px; }
 .mpc-mini{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; text-align:center; padding:10px 0; border-block:1px solid rgba(255,255,255,.1); }
 .mpc-mini b{ display:block; font:800 22px/1.1 var(--display); }
 .mpc-mini span{ font-size:11px; color:var(--chalk-2); }
@@ -731,7 +731,7 @@ body{ background:
 .mpc-m small{ font-size:11.5px; color:var(--muted); }
 .mpc-foot{ display:flex; gap:10px; margin-top:18px; }
 .mpc-foot .btn{ flex:1; }
-@media(max-width:600px){ .mpc-hero b{ font-size:48px; } .mpc-ovr b{ font-size:54px; } .mpc-id h4{ font-size:23px; } }
+@media(max-width:600px){ .mpc-hero b{ font-size:42px; } .mpc-ovr b{ font-size:54px; } .mpc-id h4{ font-size:23px; } }
 </style>
 </head>
 <body>
@@ -1235,7 +1235,7 @@ function getSeasonHighlights(normName, matchList){
 /* =========================================================
    Football card rating (community "FC rating", 40-99 scale)
 ========================================================= */
-/* Technical bonus: passing, dribbling and defensive success rates feed the OVR.
+/* Technical bonus: big chances created (a plain count), dribbling and defensive success rates feed the OVR.
    Each rate is shrunk toward a league-average prior (so 1/1 never beats 18/20),
    then a small volume bonus rewards doing it often. Matches logged before these
    stats existed have no attempts, so their ratings are untouched. */
@@ -1245,7 +1245,7 @@ function skillBonus(p){
     const adj = (c + prior*8) / (a + 8);
     return (adj - prior)*w + Math.min(cap, c*per);
   };
-  return f(p.passComp,p.passAtt,.70,10,3,.04)
+  return Math.min(4, (p.bigChances||0)*0.4)
        + f(p.dribComp,p.dribAtt,.50,8,3,.12)
        + f(p.defComp,p.defAtt,.60,10,4,.10);
 }
@@ -1353,7 +1353,7 @@ function computeAggregates(matchList){
   const players = {}; // normalized -> {name, goals, ownGoals, assists, saves, yellow, red, motm, ratingSum, ratingCount, matches, minutesPlayed}
   function ensure(name){
     const n = normalize(name);
-    if(!players[n]) players[n] = { name: titleCasePreserve(name), goals:0, ownGoals:0, assists:0, saves:0, yellow:0, red:0, motm:0, ratingSum:0, ratingCount:0, matches:0, minutesPlayed:0, dribComp:0, dribAtt:0, passComp:0, passAtt:0, defComp:0, defAtt:0 };
+    if(!players[n]) players[n] = { name: titleCasePreserve(name), goals:0, ownGoals:0, assists:0, saves:0, yellow:0, red:0, motm:0, ratingSum:0, ratingCount:0, matches:0, minutesPlayed:0, dribComp:0, dribAtt:0, bigChances:0, defComp:0, defAtt:0 };
     return players[n];
   }
   matchList.forEach(m=>{
@@ -1363,7 +1363,7 @@ function computeAggregates(matchList){
       rec.ownGoals += Number(p.ownGoals)||0;
       rec.assists += Number(p.assists)||0;
       rec.saves += Number(p.saves)||0;
-      ['dribComp','dribAtt','passComp','passAtt','defComp','defAtt'].forEach(k=>{ rec[k] += Number(p[k])||0; });
+      ['dribComp','dribAtt','bigChances','defComp','defAtt'].forEach(k=>{ rec[k] += Number(p[k])||0; });
       rec.yellow += Number(p.yellow)||0;
       rec.red += Number(p.red)||0;
       rec.matches += 1;
@@ -1659,14 +1659,14 @@ function openMatchPlayerCard(matchId, norm){
           </div>
         </div>
         <div class="mpc-tags">${isMotm?'<span>Man of the match</span>':''}${isCS?'<span>Clean sheet</span>':''}${p.isSub?'<span>Substitute</span>':''}${(+p.ownGoals>0)?`<span class="bad">Own goal ×${p.ownGoals}</span>`:''}</div>
-        <div class="mpc-hero"><div><b>${+p.goals||0}</b><span>Goals</span></div><div><b>${+p.assists||0}</b><span>Assists</span></div></div>
+        <div class="mpc-hero"><div><b>${+p.goals||0}</b><span>Goals</span></div><div><b>${+p.assists||0}</b><span>Assists</span></div><div><b>${+p.bigChances||0}</b><span>Big chances created</span></div></div>
         <div class="mpc-mini">
           <div><b>${+p.saves||0}</b><span>Saves</span></div>
           <div><b>${p.minutesPlayed!=null&&p.minutesPlayed!=='' ? p.minutesPlayed : MATCH_DURATION_MINUTES}'</b><span>Played</span></div>
           <div><b>${p.rating!==''&&p.rating!=null ? Number(p.rating).toFixed(1) : '—'}</b><span>Rating</span></div>
           <div><b>${cards}</b><span>Cards</span></div>
         </div>
-        <div class="mpc-meters">${meter('Passes completed',p.passComp,p.passAtt)}${meter('Dribbles completed',p.dribComp,p.dribAtt)}${meter('Defensive contribution',p.defComp,p.defAtt)}</div>
+        <div class="mpc-meters">${meter('Dribbles completed',p.dribComp,p.dribAtt)}${meter('Defensive contribution',p.defComp,p.defAtt)}</div>
         <div class="mpc-foot"><button class="btn" onclick="closeModal()">Close</button><button class="btn primary" onclick="closeModal();navigate('player','${esc(norm)}')">Full profile</button></div>
       </div>
     </div>
@@ -1869,7 +1869,7 @@ function renderFootballCard(allTimeP, seasonP, opts){
           <div><b>${seasonP.assists}</b>Assists</div>
           <div><b>${seasonP.motm}</b>MOTM</div>
         </div>
-        ${(allTimeP.passAtt||allTimeP.dribAtt||allTimeP.defAtt) ? `<div class="pc-skill" title="Success rate: passing, dribbling, defending (all-time)"><span><b>${pctTxt(allTimeP.passComp,allTimeP.passAtt)}</b>PAS</span><span><b>${pctTxt(allTimeP.dribComp,allTimeP.dribAtt)}</b>DRI</span><span><b>${pctTxt(allTimeP.defComp,allTimeP.defAtt)}</b>DEF</span></div>` : ''}
+        ${(allTimeP.bigChances||allTimeP.dribAtt||allTimeP.defAtt) ? `<div class="pc-skill" title="Big chances created (count), dribbling and defending success (all-time)"><span><b>${allTimeP.bigChances||0}</b>BCC</span><span><b>${pctTxt(allTimeP.dribComp,allTimeP.dribAtt)}</b>DRI</span><span><b>${pctTxt(allTimeP.defComp,allTimeP.defAtt)}</b>DEF</span></div>` : ''}
       </div>
     </div>
     ${positionEditor}
@@ -2086,10 +2086,10 @@ function renderPlayerProfile(normName){
           <div><b>${p.yellow}</b><span>Yellow cards</span></div>
           <div><b>${p.red}</b><span>Red cards</span></div>
           <div><b>${avgRating}</b><span>Average rating</span></div>
-          <div><b>${pctTxt(p.passComp,p.passAtt)}${p.passAtt?'%':''}</b><span>Pass accuracy${p.passAtt?` (${p.passComp}/${p.passAtt})`:''}</span></div>
+          <div><b>${p.bigChances||0}</b><span>Big chances created</span></div>
           <div><b>${pctTxt(p.dribComp,p.dribAtt)}${p.dribAtt?'%':''}</b><span>Dribbles completed${p.dribAtt?` (${p.dribComp}/${p.dribAtt})`:''}</span></div>
           <div><b>${pctTxt(p.defComp,p.defAtt)}${p.defAtt?'%':''}</b><span>Defensive success${p.defAtt?` (${p.defComp}/${p.defAtt})`:''}</span></div>
-          <div><b>${(p.passComp||0)+(p.dribComp||0)+(p.defComp||0)}</b><span>Successful actions</span></div>
+          <div><b>${(p.dribComp||0)+(p.defComp||0)}</b><span>Successful actions</span></div>
         </div>
       </div>
 
@@ -2608,21 +2608,22 @@ function adminLogout(){
    Add Match form
 ========================================================= */
 /* Per-player fields added to every row: the position played in THIS match,
-   plus completed / attempted for dribbles, passes and defensive actions. */
+   plus big chances created (a plain count) and completed / attempted for dribbles and defensive actions. */
 function skillFieldsHTML(){
   const pair = (role,label,title)=>`<div class="pair-wrap"><span class="mini-lbl" title="${title}">${label}</span><div class="pair"><input data-role="${role}-c" type="number" min="0" value="0" aria-label="${title}, completed"><em>/</em><input data-role="${role}-a" type="number" min="0" value="0" aria-label="${title}, attempts"></div></div>`;
   return `<div class="pos-wrap"><span class="mini-lbl">Position</span><select data-role="pos" aria-label="Position played in this match"><option value="">Auto</option>${Object.keys(POSITIONS).map(c=>`<option value="${c}">${c}, ${POSITIONS[c].label}</option>`).join('')}</select></div>`
     + pair('drib','Dribbles','Dribbles completed out of attempted')
-    + pair('pass','Passes','Passes completed out of attempted')
+    + `<div class="bc-wrap"><span class="mini-lbl" title="Big chances this player created for teammates">Big chances</span><input data-role="bigchances" type="number" min="0" value="0" aria-label="Big chances created"></div>`
     + pair('def','Defending','Defensive contributions out of attempts (tackles, blocks, interceptions)');
 }
 function readExtras(row){
   const n = r => Number(row.querySelector(`[data-role="${r}"]`).value)||0;
   const o = { pos: row.querySelector('[data-role="pos"]').value || '' };
-  ['drib','pass','def'].forEach(k=>{ const c = n(k+'-c'); o[k+'Comp'] = c; o[k+'Att'] = Math.max(c, n(k+'-a')); });
+  ['drib','def'].forEach(k=>{ const c = n(k+'-c'); o[k+'Comp'] = c; o[k+'Att'] = Math.max(c, n(k+'-a')); });
+  o.bigChances = Math.max(0, Math.floor(n('bigchances')));
   return o;
 }
-const SUB_KEEP = ['name','goals','own-goals','assists','saves','yellow','red','rating','minutes','pos','drib-c','drib-a','pass-c','pass-a','def-c','def-a'];
+const SUB_KEEP = ['name','goals','own-goals','assists','saves','yellow','red','rating','minutes','pos','drib-c','drib-a','bigchances','def-c','def-a'];
 
 function renderAddMatch(fmt){
   if(!STATE.admin){
@@ -2885,7 +2886,7 @@ function shuffleTeams(fmt){
   rows.forEach((r,i)=>{
     const input = r.querySelector('input[data-role="name"]');
     input.value = names[i] || '';
-    ['goals','own-goals','assists','saves','yellow','red','drib-c','drib-a','pass-c','pass-a','def-c','def-a'].forEach(role=>{ r.querySelector(`[data-role="${role}"]`).value = 0; });
+    ['goals','own-goals','assists','saves','yellow','red','drib-c','drib-a','bigchances','def-c','def-a'].forEach(role=>{ r.querySelector(`[data-role="${role}"]`).value = 0; });
     r.querySelector('[data-role="pos"]').value = '';
     r.querySelector('input[data-role="rating"]').value = '';
     const minutesInput = r.querySelector('input[data-role="minutes"]');
